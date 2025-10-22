@@ -1,7 +1,7 @@
 :root {
   color-scheme: light;
   --landing-placeholder-width: clamp(100px, 24%, 180px);
-  --landing-input-offset: clamp(12px, 3vw, 28px);
+  --landing-input-offset: clamp(6px, 2vw, 20px);
 }
 
 * {
