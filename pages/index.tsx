@@ -272,14 +272,12 @@ const IndexPage = () => {
   return (
     <main className="landing">
       <div className="landing-wrapper">
-        <div
-          className={`landing-card${showResult ? " landing-card--result" : ""}`}
-          aria-live={showResult ? "polite" : "off"}
-          aria-label={showResult ? "완성된 초대장 미리보기" : "초대장 작성 입력 영역"}
-          ref={resultCardRef}
-        >
-          <img src={asset("/invitation_2.png")} alt="졸업전시 초대장 배경 이미지" className="landing-card__image" />
-
+        <img
+          src={showResult ? asset("/result.png") : asset("/invitation.png")}
+          alt="졸업전시 초대장 미리보기 이미지"
+          className="landing-image-only"
+        />
+        <div className={`landing-overlay${showResult ? " landing-overlay--readonly" : ""}`}>
           {!showResult ? (
             <>
               <label className="landing-field landing-field--to" htmlFor="landing-to-input">
@@ -307,51 +305,57 @@ const IndexPage = () => {
             </>
           ) : (
             <>
-              {toName && (
-                <span
-                  className="landing-result-text landing-result-text--to"
-                  style={toTextStyle}
-                  aria-label="초대 받는 분"
-                  ref={toTextRef}
+              <div
+                className="landing-result-card"
+                aria-live="polite"
+                aria-label="완성된 초대장 미리보기"
+                ref={resultCardRef}
+              >
+                <img src={asset("/invitation_2.png")} alt="" className="landing-result-card__image" />
+                {toName && (
+                  <span
+                    className="landing-result-text landing-result-text--to"
+                    style={toTextStyle}
+                    aria-label="초대 받는 분"
+                    ref={toTextRef}
+                  >
+                    {toName}
+                  </span>
+                )}
+                {fromName && (
+                  <span
+                    className="landing-result-text landing-result-text--from"
+                    style={fromTextStyle}
+                    aria-label="초대 보내는 분"
+                    ref={fromTextRef}
+                  >
+                    {fromName}
+                  </span>
+                )}
+              </div>
+              <div className="landing-result-actions">
+                <button
+                  type="button"
+                  className="landing-result-action"
+                  onClick={handleSaveClick}
+                  disabled={isSaving}
+                  aria-label={isSaving ? "초대장 저장 중" : "초대장 저장하기"}
                 >
-                  {toName}
-                </span>
-              )}
-              {fromName && (
-                <span
-                  className="landing-result-text landing-result-text--from"
-                  style={fromTextStyle}
-                  aria-label="초대 보내는 분"
-                  ref={fromTextRef}
+                  <img src={asset("/save.svg")} alt="" />
+                </button>
+                <button
+                  type="button"
+                  className="landing-result-action landing-result-action--retry"
+                  onClick={handleRetryClick}
+                  aria-label="이름 다시 입력하기"
                 >
-                  {fromName}
-                </span>
-              )}
+                  <img src={asset("/retry.svg")} alt="" />
+                </button>
+              </div>
             </>
           )}
         </div>
-
-        {showResult ? (
-          <div className="landing-result-actions">
-            <button
-              type="button"
-              className="landing-result-action"
-              onClick={handleSaveClick}
-              disabled={isSaving}
-              aria-label={isSaving ? "초대장 저장 중" : "초대장 저장하기"}
-            >
-              <img src={asset("/save.svg")} alt="" />
-            </button>
-            <button
-              type="button"
-              className="landing-result-action landing-result-action--retry"
-              onClick={handleRetryClick}
-              aria-label="이름 다시 입력하기"
-            >
-              <img src={asset("/retry.svg")} alt="" />
-            </button>
-          </div>
-        ) : (
+        {!showResult && (
           <Link
             href="/generator"
             className="landing-button"
@@ -362,7 +366,6 @@ const IndexPage = () => {
             <img src={asset("/button_1.svg")} alt="초대장 만들기 이동 버튼" />
           </Link>
         )}
-
         <a ref={downloadLinkRef} style={{ display: "none" }} aria-hidden="true" />
       </div>
     </main>

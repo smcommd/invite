@@ -1,10 +1,5 @@
 :root {
   color-scheme: light;
-  --landing-card-aspect: 1024 / 1464;
-  --landing-to-top: calc(182 / 1464 * 100%);
-  --landing-from-top: calc(824 / 1464 * 100%);
-  --landing-to-x-offset: -2.45%;
-  --landing-from-x-offset: 4.88%;
 }
 
 * {
@@ -37,46 +32,27 @@ button:disabled {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: clamp(24px, 6vw, 48px) 16px;
+  padding: 0;
   background: #f0f2f5;
 }
 
 .landing-wrapper {
-  width: min(100%, 420px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(20px, 5vw, 32px);
-  margin: 0 auto;
-}
-
-.landing-card {
   position: relative;
-  width: 100%;
-  aspect-ratio: var(--landing-card-aspect);
-  max-width: min(100%, 420px);
+  width: min(100%, 720px);
 }
 
-.landing-card__image {
-  position: absolute;
-  inset: 0;
+.landing-image-only {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
   display: block;
-  z-index: 0;
-}
-
-.landing-result-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(12px, 4vw, 24px);
-  flex-wrap: wrap;
+  height: auto;
 }
 
 .landing-button {
-  width: clamp(200px, 64%, 320px);
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  top: clamp(60%, 66vw, 74%);
+  width: clamp(200px, 40vw, 320px);
   display: block;
   touch-action: manipulation;
 }
@@ -111,6 +87,48 @@ button:disabled {
     transform: translateZ(0);
     filter: none;
   }
+}
+
+.landing-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.landing-overlay--readonly {
+  pointer-events: auto;
+}
+
+.landing-result-card {
+  position: absolute;
+  top: calc(820 / 3120 * 100% + 20px);
+  left: 50%;
+  width: calc(1024 / 1440 * 100%);
+  transform: translateX(-50%);
+  aspect-ratio: 1024 / 1464;
+  pointer-events: none;
+}
+
+.landing-result-card__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  z-index: 0;
+}
+
+.landing-result-actions {
+  position: absolute;
+  top: calc((820 + 1464) / 3120 * 100% + 48px);
+  left: 50%;
+  transform: translate(-50%, 0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(6px, 3vw, 16px);
+  z-index: 2;
 }
 
 .landing-result-action {
@@ -148,7 +166,8 @@ button:disabled {
 }
 
 .landing-result-action--retry {
-  margin-left: 0;
+  align-self: flex-end;
+  margin-left: clamp(8px, 4vw, 20px);
 }
 
 .landing-result-action:not(:disabled):hover img,
@@ -173,11 +192,11 @@ button:disabled {
 }
 
 .landing-result-text--to {
-  top: var(--landing-to-top);
+  top: calc(182 / 1464 * 100%);
 }
 
 .landing-result-text--from {
-  top: var(--landing-from-top);
+  top: calc(824 / 1464 * 100%);
 }
 
 .landing-field {
@@ -185,25 +204,38 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: 68%;
-  min-height: clamp(26px, 5vw, 34px);
+  width: clamp(200px, 48%, 360px);
+  height: clamp(26px, 5vw, 34px);
   font-weight: 400;
   color: #121212;
-  transform: translate(-50%, -50%);
-  gap: clamp(10px, 4vw, 14px);
-  pointer-events: auto;
+}
+
+.landing-text {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  font-weight: 400;
+  color: #121212;
+  white-space: nowrap;
 }
 
 .landing-field--to {
-  top: var(--landing-to-top);
-  left: calc(50% + var(--landing-to-x-offset));
+  top: 35%;
+  left: clamp(24%, 32vw, 40%);
+}
+
+.landing-text--to {
+  top: 35%;
+  left: clamp(24%, 32vw, 40%);
 }
 
 .landing-placeholder {
   position: absolute;
   left: 0;
   top: 50%;
-  width: clamp(96px, 32%, 140px);
+  width: clamp(100px, 24%, 180px);
   height: auto;
   object-fit: contain;
   opacity: 0.85;
@@ -240,9 +272,40 @@ button:disabled {
   font-size: clamp(18px, 4vw, 28px);
 }
 
+.landing-text {
+  font-size: clamp(18px, 4vw, 28px);
+  pointer-events: none;
+}
+
 .landing-field--from {
-  top: var(--landing-from-top);
-  left: calc(50% + var(--landing-from-x-offset));
+  top: 46%;
+  left: clamp(33%, 40vw, 45%);
+}
+
+.landing-text--from {
+  top: 46%;
+  left: clamp(33%, 40vw, 45%);
+}
+
+@media (min-width: 1024px) {
+  .landing-wrapper {
+    width: min(540px, 70%);
+  }
+
+  .landing-field--to,
+  .landing-text--to {
+    left: 32%;
+  }
+
+  .landing-field--from,
+  .landing-text--from {
+    left: 38%;
+  }
+
+  .landing-button {
+    top: 58%;
+    width: clamp(180px, 22vw, 260px);
+  }
 }
 
 .btn {
@@ -547,3 +610,4 @@ button:disabled {
   color: #1f1f1f;
   background: #ffffff;
 }
+
