@@ -203,11 +203,13 @@ button:disabled {
   position: absolute;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  width: clamp(200px, 48%, 360px);
+  justify-content: center;
+  width: clamp(240px, 64%, 460px);
   height: clamp(26px, 5vw, 34px);
   font-weight: 400;
   color: #121212;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .landing-text {
@@ -270,42 +272,6 @@ button:disabled {
   font-weight: 400 !important;
   font-style: normal;
   font-size: clamp(18px, 4vw, 28px);
-}
-
-.landing-text {
-  font-size: clamp(18px, 4vw, 28px);
-  pointer-events: none;
-}
-
-.landing-field--from {
-  top: 46%;
-  left: clamp(33%, 40vw, 45%);
-}
-
-.landing-text--from {
-  top: 46%;
-  left: clamp(33%, 40vw, 45%);
-}
-
-@media (min-width: 1024px) {
-  .landing-wrapper {
-    width: min(540px, 70%);
-  }
-
-  .landing-field--to,
-  .landing-text--to {
-    left: 32%;
-  }
-
-  .landing-field--from,
-  .landing-text--from {
-    left: 38%;
-  }
-
-  .landing-button {
-    top: 58%;
-    width: clamp(180px, 22vw, 260px);
-  }
 }
 
 .btn {
@@ -610,4 +576,3 @@ button:disabled {
   color: #1f1f1f;
   background: #ffffff;
 }
-
