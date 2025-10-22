@@ -1,5 +1,7 @@
 :root {
   color-scheme: light;
+  --landing-placeholder-width: clamp(100px, 24%, 180px);
+  --landing-input-offset: calc(var(--landing-placeholder-width) - clamp(28px, 6vw, 48px));
 }
 
 * {
@@ -235,7 +237,7 @@ button:disabled {
   position: absolute;
   left: 0;
   top: 50%;
-  width: clamp(100px, 24%, 180px);
+  width: var(--landing-placeholder-width);
   height: auto;
   object-fit: contain;
   opacity: 0.85;
@@ -255,9 +257,10 @@ button:disabled {
   font-family: "rixdongnimgothic-pro", sans-serif;
   text-transform: none;
   padding: 0;
+  padding-left: var(--landing-input-offset);
   line-height: clamp(26px, 5vw, 34px);
   pointer-events: auto;
-  text-align: center;
+  text-align: left;
 }
 
 .landing-input::placeholder,
@@ -610,4 +613,3 @@ button:disabled {
   color: #1f1f1f;
   background: #ffffff;
 }
-
