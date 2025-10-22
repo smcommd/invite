@@ -9,11 +9,11 @@ const FROM_TEXT_RATIO = 824 / INVITATION_HEIGHT;
 const TO_TEXT_X_OFFSET = -25;
 const FROM_TEXT_X_OFFSET = 50;
 const MAX_TEXT_WIDTH_RATIO = 0.6;
-const NAME_FONT_BASE = 36;
+const NAME_FONT_BASE = 42;
 const NAME_FONT_MIN = 24;
-const NAME_FONT_MAX = 54;
+const NAME_FONT_MAX = 64;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
-const DOWNLOAD_FONT_SCALE = 1.3;
+const DOWNLOAD_FONT_SCALE = 1.6;
 
 const IndexPage = () => {
   const { basePath } = useRouter();
