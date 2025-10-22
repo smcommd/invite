@@ -285,7 +285,7 @@ const IndexPage = () => {
                 <input
                   id="landing-to-input"
                   className="landing-input"
-                  placeholder="(입력하세요)"
+                  aria-label="초대장을 받는 분"
                   maxLength={20}
                   value={toName}
                   onChange={(event) => setToName(event.target.value)}
@@ -296,7 +296,7 @@ const IndexPage = () => {
                 <input
                   id="landing-from-input"
                   className="landing-input"
-                  placeholder="(입력하세요)"
+                  aria-label="초대장을 보내는 분"
                   maxLength={20}
                   value={fromName}
                   onChange={(event) => setFromName(event.target.value)}
