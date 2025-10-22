@@ -254,14 +254,14 @@ const IndexPage = () => {
     setFromName("");
   };
 
-  const toPositionStyle = useMemo(
+  const toTextStyle = useMemo(
     () => ({
       top: `${TO_TEXT_RATIO * 100}%`,
       left: `calc(50% ${TO_TEXT_X_OFFSET >= 0 ? "+" : "-"} ${Math.abs(TO_TEXT_X_OFFSET)}px)`,
     }),
     []
   );
-  const fromPositionStyle = useMemo(
+  const fromTextStyle = useMemo(
     () => ({
       top: `${FROM_TEXT_RATIO * 100}%`,
       left: `calc(50% ${FROM_TEXT_X_OFFSET >= 0 ? "+" : "-"} ${Math.abs(FROM_TEXT_X_OFFSET)}px)`,
@@ -280,7 +280,7 @@ const IndexPage = () => {
         <div className={`landing-overlay${showResult ? " landing-overlay--readonly" : ""}`}>
           {!showResult ? (
             <>
-              <label className="landing-field landing-field--to" htmlFor="landing-to-input" style={toPositionStyle}>
+              <label className="landing-field landing-field--to" htmlFor="landing-to-input">
                 {!toName && <img src={asset("/write.png")} alt="" className="landing-placeholder landing-placeholder--to" />}
                 <input
                   id="landing-to-input"
@@ -291,7 +291,7 @@ const IndexPage = () => {
                   onChange={(event) => setToName(event.target.value)}
                 />
               </label>
-              <label className="landing-field landing-field--from" htmlFor="landing-from-input" style={fromPositionStyle}>
+              <label className="landing-field landing-field--from" htmlFor="landing-from-input">
                 {!fromName && <img src={asset("/write.png")} alt="" className="landing-placeholder landing-placeholder--from" />}
                 <input
                   id="landing-from-input"
@@ -315,7 +315,7 @@ const IndexPage = () => {
                 {toName && (
                   <span
                     className="landing-result-text landing-result-text--to"
-                    style={toPositionStyle}
+                    style={toTextStyle}
                     aria-label="초대 받는 분"
                     ref={toTextRef}
                   >
@@ -325,7 +325,7 @@ const IndexPage = () => {
                 {fromName && (
                   <span
                     className="landing-result-text landing-result-text--from"
-                    style={fromPositionStyle}
+                    style={fromTextStyle}
                     aria-label="초대 보내는 분"
                     ref={fromTextRef}
                   >
