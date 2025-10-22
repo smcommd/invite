@@ -5,7 +5,7 @@
  */
 const os = require("os");
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 const interfaces = os.networkInterfaces();
 
 const addresses = Object.values(interfaces)
@@ -30,4 +30,3 @@ if (uniqueAddresses.length > 0) {
 }
 
 console.log("");
-
