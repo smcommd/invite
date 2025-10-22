@@ -1,5 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 const INVITATION_WIDTH = 1024;
 const INVITATION_HEIGHT = 1464;
@@ -10,6 +11,12 @@ const FROM_TEXT_X_OFFSET = 50;
 const MAX_TEXT_WIDTH_RATIO = 0.6;
 
 const IndexPage = () => {
+  const { basePath } = useRouter();
+  const asset = (path: string) => {
+    const normalized = path.startsWith("/") ? path : `/${path}`;
+    return `${basePath ?? ""}${normalized}`;
+  };
+
   const [showResult, setShowResult] = useState(false);
   const [toName, setToName] = useState("");
   const [fromName, setFromName] = useState("");
@@ -73,7 +80,7 @@ const IndexPage = () => {
         }
       }
 
-      const invitationImage = await loadInvitationImage("/invitation_2.png");
+      const invitationImage = await loadInvitationImage(asset("/invitation_2.png"));
       canvas.width = invitationImage.width;
       canvas.height = invitationImage.height;
 
@@ -266,7 +273,7 @@ const IndexPage = () => {
     <main className="landing">
       <div className="landing-wrapper">
         <img
-          src={showResult ? "/result.png" : "/invitation.png"}
+          src={showResult ? asset("/result.png") : asset("/invitation.png")}
           alt="졸업전시 초대장 미리보기 이미지"
           className="landing-image-only"
         />
@@ -274,7 +281,7 @@ const IndexPage = () => {
           {!showResult ? (
             <>
               <label className="landing-field landing-field--to" htmlFor="landing-to-input">
-                {!toName && <img src="/write.png" alt="" className="landing-placeholder landing-placeholder--to" />}
+                {!toName && <img src={asset("/write.png")} alt="" className="landing-placeholder landing-placeholder--to" />}
                 <input
                   id="landing-to-input"
                   className="landing-input"
@@ -285,7 +292,7 @@ const IndexPage = () => {
                 />
               </label>
               <label className="landing-field landing-field--from" htmlFor="landing-from-input">
-                {!fromName && <img src="/write.png" alt="" className="landing-placeholder landing-placeholder--from" />}
+                {!fromName && <img src={asset("/write.png")} alt="" className="landing-placeholder landing-placeholder--from" />}
                 <input
                   id="landing-from-input"
                   className="landing-input"
@@ -304,7 +311,7 @@ const IndexPage = () => {
                 aria-label="완성된 초대장 미리보기"
                 ref={resultCardRef}
               >
-                <img src="/invitation_2.png" alt="" className="landing-result-card__image" />
+                <img src={asset("/invitation_2.png")} alt="" className="landing-result-card__image" />
                 {toName && (
                   <span
                     className="landing-result-text landing-result-text--to"
@@ -334,7 +341,7 @@ const IndexPage = () => {
                   disabled={isSaving}
                   aria-label={isSaving ? "초대장 저장 중" : "초대장 저장하기"}
                 >
-                  <img src="/save.svg" alt="" />
+                  <img src={asset("/save.svg")} alt="" />
                 </button>
                 <button
                   type="button"
@@ -342,7 +349,7 @@ const IndexPage = () => {
                   onClick={handleRetryClick}
                   aria-label="이름 다시 입력하기"
                 >
-                  <img src="/retry.svg" alt="" />
+                  <img src={asset("/retry.svg")} alt="" />
                 </button>
               </div>
             </>
@@ -356,7 +363,7 @@ const IndexPage = () => {
             aria-label="초대장 만들기 페이지로 이동"
             onClick={handleButtonClick}
           >
-            <img src="/button_1.svg" alt="초대장 만들기 이동 버튼" />
+            <img src={asset("/button_1.svg")} alt="초대장 만들기 이동 버튼" />
           </Link>
         )}
         <a ref={downloadLinkRef} style={{ display: "none" }} aria-hidden="true" />

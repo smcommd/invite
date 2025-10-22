@@ -1,4 +1,5 @@
-import React, { MutableRefObject, useEffect, useState } from "react";
+import React, { MutableRefObject, useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/router";
 
 export interface InvitationCanvasProps {
   from: string;
@@ -8,6 +9,12 @@ export interface InvitationCanvasProps {
 }
 
 const InvitationCanvas = ({ from, to, canvasRef, className }: InvitationCanvasProps) => {
+  const { basePath } = useRouter();
+  const asset = useCallback((path: string) => {
+    const normalized = path.startsWith("/") ? path : `/${path}`;
+    return `${basePath ?? ""}${normalized}`;
+  }, [basePath]);
+
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,7 +54,7 @@ const InvitationCanvas = ({ from, to, canvasRef, className }: InvitationCanvasPr
       if (document.fonts && "ready" in document.fonts) {
         await document.fonts.ready;
       }
-      image.src = "/result.png";
+      image.src = asset("/result.png");
     };
 
     draw();
@@ -55,7 +62,7 @@ const InvitationCanvas = ({ from, to, canvasRef, className }: InvitationCanvasPr
     return () => {
       isMounted = false;
     };
-  }, [from, to, canvasRef]);
+  }, [asset, from, to, canvasRef]);
 
   return (
     <div className="invitation-wrapper">
