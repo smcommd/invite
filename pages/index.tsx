@@ -9,6 +9,10 @@ const FROM_TEXT_RATIO = 824 / INVITATION_HEIGHT;
 const TO_TEXT_X_OFFSET = -25;
 const FROM_TEXT_X_OFFSET = 50;
 const MAX_TEXT_WIDTH_RATIO = 0.6;
+const NAME_FONT_BASE = 36;
+const NAME_FONT_MIN = 24;
+const NAME_FONT_MAX = 44;
+const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
 
 const IndexPage = () => {
   const { basePath } = useRouter();
@@ -110,26 +114,25 @@ const IndexPage = () => {
         if (!text) return;
         const y = Math.round(canvas.height * ratio);
         const maxWidth = canvas.width * MAX_TEXT_WIDTH_RATIO;
-        let fontSize = Math.round((canvas.width * 46) / INVITATION_WIDTH);
-        fontSize = Math.max(28, Math.min(52, fontSize));
+        let fontSize = Math.round((canvas.width * NAME_FONT_BASE) / INVITATION_WIDTH);
+        fontSize = Math.max(NAME_FONT_MIN, Math.min(NAME_FONT_MAX, fontSize));
 
-        const fontFamilies = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
         context.textAlign = "center";
         context.textBaseline = "middle";
         context.fillStyle = "#121212";
 
         const measure = (size: number) => {
-          context.font = `700 ${size}px ${fontFamilies}`;
+          context.font = `700 ${size}px ${NAME_FONT_FAMILIES}`;
           return context.measureText(text).width;
         };
 
         let measured = measure(fontSize);
-        while (measured > maxWidth && fontSize > 24) {
+        while (measured > maxWidth && fontSize > NAME_FONT_MIN) {
           fontSize -= 2;
           measured = measure(fontSize);
         }
 
-        context.font = `700 ${fontSize}px ${fontFamilies}`;
+        context.font = `700 ${fontSize}px ${NAME_FONT_FAMILIES}`;
         const centerPoint = getCanvasCenterFromElement(element);
         const targetX = centerPoint?.x ?? canvas.width / 2 + xOffset;
         const targetY = centerPoint?.y ?? y;

@@ -1,6 +1,18 @@
 import React, { MutableRefObject, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
+const INVITATION_WIDTH = 1024;
+const INVITATION_HEIGHT = 1464;
+const TO_TEXT_RATIO = 182 / INVITATION_HEIGHT;
+const FROM_TEXT_RATIO = 824 / INVITATION_HEIGHT;
+const TO_TEXT_X_OFFSET = -25;
+const FROM_TEXT_X_OFFSET = 50;
+const MAX_TEXT_WIDTH_RATIO = 0.6;
+const NAME_FONT_BASE = 36;
+const NAME_FONT_MIN = 24;
+const NAME_FONT_MAX = 44;
+const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
+
 export interface InvitationCanvasProps {
   from: string;
   to: string;
@@ -36,11 +48,36 @@ const InvitationCanvas = ({ from, to, canvasRef, className }: InvitationCanvasPr
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.drawImage(image, 0, 0);
 
-      context.fillStyle = "#FFFFFF";
-      context.textAlign = "center";
-      context.font = "bold 48px Pretendard, sans-serif";
-      context.fillText(`${to} 님께`, image.width / 2, image.height * 0.75);
-      context.fillText(`From. ${from}`, image.width / 2, image.height * 0.83);
+      const drawName = (text: string, ratio: number, xOffset = 0) => {
+        const sanitized = text.trim();
+        if (!sanitized) return;
+
+        const y = Math.round(canvas.height * ratio);
+        const maxWidth = canvas.width * MAX_TEXT_WIDTH_RATIO;
+        let fontSize = Math.round((canvas.width * NAME_FONT_BASE) / INVITATION_WIDTH);
+        fontSize = Math.max(NAME_FONT_MIN, Math.min(NAME_FONT_MAX, fontSize));
+
+        const measure = (size: number) => {
+          context.font = `700 ${size}px ${NAME_FONT_FAMILIES}`;
+          return context.measureText(sanitized).width;
+        };
+
+        let measured = measure(fontSize);
+        while (measured > maxWidth && fontSize > NAME_FONT_MIN) {
+          fontSize -= 2;
+          measured = measure(fontSize);
+        }
+
+        context.font = `700 ${fontSize}px ${NAME_FONT_FAMILIES}`;
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillStyle = "#121212";
+        const x = canvas.width / 2 + xOffset;
+        context.fillText(sanitized, x, y);
+      };
+
+      drawName(to, TO_TEXT_RATIO, TO_TEXT_X_OFFSET);
+      drawName(from, FROM_TEXT_RATIO, FROM_TEXT_X_OFFSET);
       setIsReady(true);
       setError(null);
     };
@@ -53,6 +90,17 @@ const InvitationCanvas = ({ from, to, canvasRef, className }: InvitationCanvasPr
     const draw = async () => {
       if (document.fonts && "ready" in document.fonts) {
         await document.fonts.ready;
+      }
+      if (document.fonts?.load) {
+        try {
+          await Promise.all([
+            document.fonts.load("700 36px rixdongnimgothic-pro"),
+            document.fonts.load("700 36px 'rixdongnimgothic-pro'"),
+            document.fonts.load("700 36px 'tk-rixdongnimgothic-pro'")
+          ]);
+        } catch {
+          // ignore font loading failures
+        }
       }
       image.src = asset("/result.png");
     };
