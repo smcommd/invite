@@ -228,6 +228,36 @@ const IndexPage = () => {
             share?: (data: ShareData & { files?: File[] }) => Promise<void>;
           })
         : undefined;
+      const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "";
+      const isIOSDevice = /iP(ad|hone|od)/i.test(userAgent);
+      const isMobileSafari = isIOSDevice && /Safari/i.test(userAgent) && !/CriOS|FxiOS|EdgiOS/i.test(userAgent);
+      const isDesktopSafari = !isIOSDevice && /Safari/i.test(userAgent) && !/Chrome|CriOS|Edg|OPR/i.test(userAgent);
+
+      const sharePayload: ShareData & { files?: File[] } = {
+        title: sanitizedFrom ? `${sanitizedFrom}의 초대장` : "초대장",
+        text: sanitizedTo ? `${sanitizedTo} 님께 전달하는 초대장입니다.` : undefined,
+      };
+
+      if (typeof File !== "undefined") {
+        try {
+          sharePayload.files = [new File([blob], fileName, { type: "image/png" })];
+        } catch {
+          // ignore file construction failures
+        }
+      }
+
+      const supportsShare = Boolean(nav?.share);
+      const canSharePayload = (() => {
+        if (!supportsShare || !nav) return false;
+        if (typeof nav.canShare !== "function") return true;
+        const shareCheckData: ShareData = sharePayload.files ? { files: sharePayload.files } : {};
+        try {
+          return nav.canShare(shareCheckData);
+        } catch {
+          return false;
+        }
+      })();
+      const shouldOfferShare = supportsShare && canSharePayload && (isMobileSafari || isDesktopSafari);
 
       let downloadHref = dataUrlFallback;
       let revoke: (() => void) | undefined;
@@ -239,21 +269,22 @@ const IndexPage = () => {
       }
 
       const downloadSucceeded = triggerDownload(downloadHref, revoke);
+      let shareHandled = false;
 
-      const isIOS = typeof navigator !== "undefined" && /iP(ad|hone|od)/i.test(navigator.userAgent);
-      if (!downloadSucceeded && isIOS && nav?.share && nav.canShare) {
-        const shareData: ShareData & { files?: File[] } = {
-          title: sanitizedFrom ? `${sanitizedFrom}의 초대장` : "초대장",
-          text: sanitizedTo ? `${sanitizedTo} 님께 전달하는 초대장입니다.` : undefined,
-          files: [new File([blob], fileName, { type: "image/png" })],
-        };
+      if (shouldOfferShare && nav?.share) {
+        try {
+          await nav.share(sharePayload);
+          shareHandled = true;
+        } catch (shareError) {
+          console.warn("초대장 공유에 실패했습니다.", shareError);
+        }
+      }
 
-        if (nav.canShare({ files: shareData.files ?? [] })) {
-          try {
-            await nav.share(shareData);
-          } catch (shareError) {
-            console.warn("초대장 공유에 실패했습니다.", shareError);
-          }
+      if (!shareHandled && !downloadSucceeded && isIOSDevice && supportsShare && canSharePayload && nav?.share) {
+        try {
+          await nav.share(sharePayload);
+        } catch (shareError) {
+          console.warn("초대장 공유에 실패했습니다.", shareError);
         }
       }
     } catch (error) {
