@@ -13,6 +13,7 @@ const NAME_FONT_BASE = 36;
 const NAME_FONT_MIN = 24;
 const NAME_FONT_MAX = 44;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
+const DOWNLOAD_FONT_SCALE = 1.1;
 
 const IndexPage = () => {
   const { basePath } = useRouter();
@@ -114,8 +115,8 @@ const IndexPage = () => {
         if (!text) return;
         const y = Math.round(canvas.height * ratio);
         const maxWidth = canvas.width * MAX_TEXT_WIDTH_RATIO;
-        let fontSize = Math.round((canvas.width * NAME_FONT_BASE) / INVITATION_WIDTH);
-        fontSize = Math.max(NAME_FONT_MIN, Math.min(NAME_FONT_MAX, fontSize));
+        const baseFontSize = Math.round((canvas.width * NAME_FONT_BASE) / INVITATION_WIDTH);
+        let fontSize = Math.max(NAME_FONT_MIN, Math.min(NAME_FONT_MAX, baseFontSize));
 
         context.textAlign = "center";
         context.textBaseline = "middle";
@@ -130,6 +131,19 @@ const IndexPage = () => {
         while (measured > maxWidth && fontSize > NAME_FONT_MIN) {
           fontSize -= 2;
           measured = measure(fontSize);
+        }
+
+        const scaledTarget = Math.round(fontSize * DOWNLOAD_FONT_SCALE);
+        if (scaledTarget > fontSize) {
+          let scaledFontSize = scaledTarget;
+          let scaledMeasured = measure(scaledFontSize);
+          while (scaledMeasured > maxWidth && scaledFontSize > fontSize) {
+            scaledFontSize -= 1;
+            scaledMeasured = measure(scaledFontSize);
+          }
+          if (scaledMeasured <= maxWidth) {
+            fontSize = scaledFontSize;
+          }
         }
 
         context.font = `700 ${fontSize}px ${NAME_FONT_FAMILIES}`;
