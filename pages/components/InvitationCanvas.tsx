@@ -10,8 +10,9 @@ const FROM_TEXT_X_OFFSET = 50;
 const MAX_TEXT_WIDTH_RATIO = 0.68;
 const NAME_FONT_BASE = 128;
 const NAME_FONT_MIN = 24;
-const NAME_FONT_MAX = 220;
+const NAME_FONT_MAX = 320;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
+const DOWNLOAD_FONT_SCALE = 2.4;
 
 export interface InvitationCanvasProps {
   from: string;
@@ -66,6 +67,19 @@ const InvitationCanvas = ({ from, to, canvasRef, className }: InvitationCanvasPr
         while (measured > maxWidth && fontSize > NAME_FONT_MIN) {
           fontSize -= 2;
           measured = measure(fontSize);
+        }
+
+        const scaledTarget = Math.min(Math.round(fontSize * DOWNLOAD_FONT_SCALE), NAME_FONT_MAX);
+        if (scaledTarget > fontSize) {
+          let scaledFontSize = scaledTarget;
+          let scaledMeasured = measure(scaledFontSize);
+          while (scaledMeasured > maxWidth && scaledFontSize > fontSize) {
+            scaledFontSize -= 1;
+            scaledMeasured = measure(scaledFontSize);
+          }
+          if (scaledMeasured <= maxWidth) {
+            fontSize = scaledFontSize;
+          }
         }
 
         context.font = `700 ${fontSize}px ${NAME_FONT_FAMILIES}`;

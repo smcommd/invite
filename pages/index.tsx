@@ -11,7 +11,7 @@ const FROM_TEXT_X_OFFSET = 50;
 const MAX_TEXT_WIDTH_RATIO = 0.68;
 const NAME_FONT_BASE = 128;
 const NAME_FONT_MIN = 24;
-const NAME_FONT_MAX = 220;
+const NAME_FONT_MAX = 320;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
 const DOWNLOAD_FONT_SCALE = 2.4;
 
@@ -125,7 +125,12 @@ const IndexPage = () => {
         const elementMetrics = getElementMetrics(element);
         const maxWidth = elementMetrics?.maxWidth ?? canvas.width * MAX_TEXT_WIDTH_RATIO;
         const baseFontSize = Math.round((canvas.width * NAME_FONT_BASE) / INVITATION_WIDTH);
-        let fontSize = elementMetrics?.fontSize ?? Math.max(NAME_FONT_MIN, Math.min(NAME_FONT_MAX, baseFontSize));
+        const defaultFontSize = Math.max(NAME_FONT_MIN, Math.min(NAME_FONT_MAX, baseFontSize));
+        let fontSize = defaultFontSize;
+
+        if (elementMetrics?.fontSize) {
+          fontSize = Math.max(elementMetrics.fontSize, defaultFontSize);
+        }
 
         context.textAlign = "center";
         context.textBaseline = "middle";
@@ -142,8 +147,8 @@ const IndexPage = () => {
           measured = measure(fontSize);
         }
 
-        const scaledTarget = Math.round(fontSize * DOWNLOAD_FONT_SCALE);
-        if (!elementMetrics?.fontSize && scaledTarget > fontSize) {
+        const scaledTarget = Math.min(Math.round(fontSize * DOWNLOAD_FONT_SCALE), NAME_FONT_MAX);
+        if (scaledTarget > fontSize) {
           let scaledFontSize = scaledTarget;
           let scaledMeasured = measure(scaledFontSize);
           while (scaledMeasured > maxWidth && scaledFontSize > fontSize) {
