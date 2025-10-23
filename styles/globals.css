@@ -189,7 +189,7 @@ button:disabled {
   color: #121212;
   line-height: 1.12;
   letter-spacing: -0.01em;
-  font-size: clamp(32px, 6vw, 64px);
+  font-size: clamp(20px, 3vw, 34px);
   z-index: 1;
 }
 
