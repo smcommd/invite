@@ -8,7 +8,7 @@ const TO_TEXT_RATIO = 182 / INVITATION_HEIGHT;
 const FROM_TEXT_RATIO = 824 / INVITATION_HEIGHT;
 const TO_TEXT_X_OFFSET = -25;
 const FROM_TEXT_X_OFFSET = 50;
-const MAX_TEXT_WIDTH_RATIO = 0.6;
+const MAX_TEXT_WIDTH_RATIO = 0.68;
 const NAME_FONT_BASE = 42;
 const NAME_FONT_MIN = 24;
 const NAME_FONT_MAX = 64;
@@ -95,28 +95,37 @@ const IndexPage = () => {
       const sanitizedTo = toName.trim();
       const sanitizedFrom = fromName.trim();
 
-      const getCanvasCenterFromElement = (element: HTMLElement | null) => {
+      const getElementMetrics = (element: HTMLElement | null) => {
         const card = resultCardRef.current;
         if (!card || !element) return null;
         const cardRect = card.getBoundingClientRect();
         const elementRect = element.getBoundingClientRect();
         if (cardRect.width === 0 || cardRect.height === 0) return null;
 
+        const scaleX = canvas.width / cardRect.width;
+        const scaleY = canvas.height / cardRect.height;
         const centerX = elementRect.left + elementRect.width / 2 - cardRect.left;
         const centerY = elementRect.top + elementRect.height / 2 - cardRect.top;
+        const computedStyle = typeof window !== "undefined" ? window.getComputedStyle(element) : null;
+        const parsedFontSize = computedStyle ? parseFloat(computedStyle.fontSize || "") : NaN;
 
         return {
-          x: (centerX / cardRect.width) * canvas.width,
-          y: (centerY / cardRect.height) * canvas.height,
+          center: {
+            x: centerX * scaleX,
+            y: centerY * scaleY,
+          },
+          fontSize: Number.isFinite(parsedFontSize) ? parsedFontSize * scaleX : undefined,
+          maxWidth: elementRect.width * scaleX,
         };
       };
 
       const centeredFillText = (text: string, ratio: number, xOffset = 0, element: HTMLElement | null = null) => {
         if (!text) return;
         const y = Math.round(canvas.height * ratio);
-        const maxWidth = canvas.width * MAX_TEXT_WIDTH_RATIO;
+        const elementMetrics = getElementMetrics(element);
+        const maxWidth = elementMetrics?.maxWidth ?? canvas.width * MAX_TEXT_WIDTH_RATIO;
         const baseFontSize = Math.round((canvas.width * NAME_FONT_BASE) / INVITATION_WIDTH);
-        let fontSize = Math.max(NAME_FONT_MIN, Math.min(NAME_FONT_MAX, baseFontSize));
+        let fontSize = elementMetrics?.fontSize ?? Math.max(NAME_FONT_MIN, Math.min(NAME_FONT_MAX, baseFontSize));
 
         context.textAlign = "center";
         context.textBaseline = "middle";
@@ -134,7 +143,7 @@ const IndexPage = () => {
         }
 
         const scaledTarget = Math.round(fontSize * DOWNLOAD_FONT_SCALE);
-        if (scaledTarget > fontSize) {
+        if (!elementMetrics?.fontSize && scaledTarget > fontSize) {
           let scaledFontSize = scaledTarget;
           let scaledMeasured = measure(scaledFontSize);
           while (scaledMeasured > maxWidth && scaledFontSize > fontSize) {
@@ -147,9 +156,8 @@ const IndexPage = () => {
         }
 
         context.font = `700 ${fontSize}px ${NAME_FONT_FAMILIES}`;
-        const centerPoint = getCanvasCenterFromElement(element);
-        const targetX = centerPoint?.x ?? canvas.width / 2 + xOffset;
-        const targetY = centerPoint?.y ?? y;
+        const targetX = elementMetrics?.center.x ?? canvas.width / 2 + xOffset;
+        const targetY = elementMetrics?.center.y ?? y;
         context.fillText(text, targetX, targetY);
       };
 
