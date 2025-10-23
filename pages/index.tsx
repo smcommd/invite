@@ -8,12 +8,12 @@ const TO_TEXT_RATIO = 182 / INVITATION_HEIGHT;
 const FROM_TEXT_RATIO = 824 / INVITATION_HEIGHT;
 const TO_TEXT_X_OFFSET = -25;
 const FROM_TEXT_X_OFFSET = 50;
-const MAX_TEXT_WIDTH_RATIO = 0.68;
-const NAME_FONT_BASE = 128;
-const NAME_FONT_MIN = 24;
-const NAME_FONT_MAX = 320;
+const MAX_TEXT_WIDTH_RATIO = 0.9;
+const NAME_FONT_BASE = 160;
+const NAME_FONT_MIN = 28;
+const NAME_FONT_MAX = 360;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
-const DOWNLOAD_FONT_SCALE = 2.4;
+const DOWNLOAD_FONT_SCALE = 2.6;
 
 const IndexPage = () => {
   const { basePath } = useRouter();
