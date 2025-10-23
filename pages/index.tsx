@@ -13,7 +13,7 @@ const NAME_FONT_BASE = 42;
 const NAME_FONT_MIN = 24;
 const NAME_FONT_MAX = 64;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
-const DOWNLOAD_FONT_SCALE = 1.6;
+const DOWNLOAD_FONT_SCALE = 3.2;
 
 const IndexPage = () => {
   const { basePath } = useRouter();
