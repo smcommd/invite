@@ -19,9 +19,10 @@ export interface InvitationCanvasProps {
   to: string;
   canvasRef: MutableRefObject<HTMLCanvasElement | null>;
   className?: string;
+  imageSrc?: string;
 }
 
-const InvitationCanvas = ({ from, to, canvasRef, className }: InvitationCanvasProps) => {
+const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/result.png" }: InvitationCanvasProps) => {
   const { basePath } = useRouter();
   const asset = useCallback((path: string) => {
     const normalized = path.startsWith("/") ? path : `/${path}`;
@@ -116,7 +117,7 @@ const InvitationCanvas = ({ from, to, canvasRef, className }: InvitationCanvasPr
           // ignore font loading failures
         }
       }
-      image.src = asset("/result.png");
+      image.src = asset(imageSrc);
     };
 
     draw();
@@ -124,7 +125,7 @@ const InvitationCanvas = ({ from, to, canvasRef, className }: InvitationCanvasPr
     return () => {
       isMounted = false;
     };
-  }, [asset, from, to, canvasRef]);
+  }, [asset, from, to, canvasRef, imageSrc]);
 
   return (
     <div className="invitation-wrapper">

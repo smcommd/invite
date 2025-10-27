@@ -111,14 +111,35 @@ button:disabled {
   pointer-events: none;
 }
 
-.landing-result-card__image {
+.landing-result-card .invitation-wrapper {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.landing-result-card .canvas-status {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6b6f74;
+  background: rgba(255, 255, 255, 0.82);
+  border-radius: 18px;
+}
+
+.landing-result-canvas {
+  width: 100%;
+  height: 100%;
   display: block;
-  z-index: 0;
+  border-radius: 18px;
 }
 
 .landing-result-actions {
@@ -176,29 +197,6 @@ button:disabled {
 .landing-result-action:not(:disabled):focus-visible img {
   transform: translateY(-6px);
   filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.22));
-}
-
-.landing-result-text {
-  position: absolute;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  text-align: center;
-  font-family: "rixdongnimgothic-pro", sans-serif;
-  font-weight: 700;
-  color: #121212;
-  line-height: 1.12;
-  letter-spacing: -0.01em;
-  font-size: clamp(36px, 8vw, 96px);
-  z-index: 1;
-}
-
-.landing-result-text--to {
-  top: calc(182 / 1464 * 100%);
-}
-
-.landing-result-text--from {
-  top: calc(824 / 1464 * 100%);
 }
 
 .landing-field {

@@ -1,19 +1,7 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-
-const INVITATION_WIDTH = 1024;
-const INVITATION_HEIGHT = 1464;
-const TO_TEXT_RATIO = 182 / INVITATION_HEIGHT;
-const FROM_TEXT_RATIO = 824 / INVITATION_HEIGHT;
-const TO_TEXT_X_OFFSET = -25;
-const FROM_TEXT_X_OFFSET = 50;
-const MAX_TEXT_WIDTH_RATIO = 0.9;
-const NAME_FONT_BASE = 160;
-const NAME_FONT_MIN = 28;
-const NAME_FONT_MAX = 360;
-const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
-const DOWNLOAD_FONT_SCALE = 2.6;
+import InvitationCanvas from "./components/InvitationCanvas";
 
 const IndexPage = () => {
   const { basePath } = useRouter();
@@ -28,9 +16,6 @@ const IndexPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const downloadLinkRef = useRef<HTMLAnchorElement | null>(null);
-  const resultCardRef = useRef<HTMLDivElement | null>(null);
-  const toTextRef = useRef<HTMLSpanElement | null>(null);
-  const fromTextRef = useRef<HTMLSpanElement | null>(null);
 
   const handleButtonClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (!showResult) {
@@ -39,173 +24,25 @@ const IndexPage = () => {
     }
   };
 
-  const loadInvitationImage = (src: string) => {
-    return new Promise<HTMLImageElement>((resolve, reject) => {
-      const image = new Image();
-      image.crossOrigin = "anonymous";
-      image.decoding = "async";
-      image.onload = () => resolve(image);
-      image.onerror = () => reject(new Error("invitation image failed to load"));
-      image.src = src;
-    });
-  };
-
   const handleSaveClick = async () => {
     if (isSaving) return;
 
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      window.alert("초대장 미리보기가 준비되지 않았습니다.");
+      return;
+    }
+
+    const sanitizedTo = toName.trim();
+    const sanitizedFrom = fromName.trim();
+
+    if (canvas.width === 0 || canvas.height === 0) {
+      window.alert("초대장 미리보기를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.");
+      return;
+    }
+
     setIsSaving(true);
     try {
-      const canvas = canvasRef.current ?? document.createElement("canvas");
-      if (!canvasRef.current) {
-        canvasRef.current = canvas;
-      }
-
-      const context = canvas.getContext("2d");
-      if (!context) {
-        throw new Error("캔버스 컨텍스트를 초기화할 수 없습니다.");
-      }
-
-      const createPreviewExportCanvas = (source: HTMLCanvasElement): HTMLCanvasElement | null => {
-        const card = resultCardRef.current;
-        const cardRect = card?.getBoundingClientRect();
-        if (!cardRect || !cardRect.width || !cardRect.height) {
-          return null;
-        }
-
-        const pixelRatio = typeof window !== "undefined" ? Math.max(1, window.devicePixelRatio || 1) : 1;
-        const targetWidth = Math.min(source.width, Math.round(cardRect.width * pixelRatio));
-        const targetHeight = Math.min(source.height, Math.round(cardRect.height * pixelRatio));
-
-        if (targetWidth <= 0 || targetHeight <= 0) {
-          return null;
-        }
-
-        if (targetWidth === source.width && targetHeight === source.height) {
-          return null;
-        }
-
-        const exportCanvas = document.createElement("canvas");
-        exportCanvas.width = targetWidth;
-        exportCanvas.height = targetHeight;
-        const exportContext = exportCanvas.getContext("2d");
-        if (!exportContext) {
-          return null;
-        }
-
-        exportContext.imageSmoothingEnabled = true;
-        exportContext.imageSmoothingQuality = "high";
-        exportContext.drawImage(source, 0, 0, source.width, source.height, 0, 0, targetWidth, targetHeight);
-        return exportCanvas;
-      };
-
-      if (document.fonts?.ready) {
-        try {
-          await document.fonts.ready;
-        } catch {
-          // ignore
-        }
-      }
-
-      if (document.fonts?.load) {
-        try {
-          await Promise.all([
-            document.fonts.load("700 48px rixdongnimgothic-pro"),
-            document.fonts.load("700 48px 'rixdongnimgothic-pro'"),
-            document.fonts.load("700 48px 'tk-rixdongnimgothic-pro'"),
-          ]);
-        } catch {
-          // ignore font loading errors and fall back to default rendering
-        }
-      }
-
-      const invitationImage = await loadInvitationImage(asset("/invitation_2.png"));
-      canvas.width = invitationImage.width;
-      canvas.height = invitationImage.height;
-
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(invitationImage, 0, 0);
-
-      const sanitizedTo = toName.trim();
-      const sanitizedFrom = fromName.trim();
-
-      const getElementMetrics = (element: HTMLElement | null) => {
-        const card = resultCardRef.current;
-        if (!card || !element) return null;
-        const cardRect = card.getBoundingClientRect();
-        const elementRect = element.getBoundingClientRect();
-        if (cardRect.width === 0 || cardRect.height === 0) return null;
-
-        const scaleX = canvas.width / cardRect.width;
-        const scaleY = canvas.height / cardRect.height;
-        const centerX = elementRect.left + elementRect.width / 2 - cardRect.left;
-        const centerY = elementRect.top + elementRect.height / 2 - cardRect.top;
-        const computedStyle = typeof window !== "undefined" ? window.getComputedStyle(element) : null;
-        const parsedFontSize = computedStyle ? parseFloat(computedStyle.fontSize || "") : NaN;
-
-        return {
-          center: {
-            x: centerX * scaleX,
-            y: centerY * scaleY,
-          },
-          fontSize: Number.isFinite(parsedFontSize) ? parsedFontSize * scaleX : undefined,
-          maxWidth: elementRect.width * scaleX,
-        };
-      };
-
-      const centeredFillText = (text: string, ratio: number, xOffset = 0, element: HTMLElement | null = null) => {
-        if (!text) return;
-        const y = Math.round(canvas.height * ratio);
-        const elementMetrics = getElementMetrics(element);
-        const maxWidth = elementMetrics?.maxWidth ?? canvas.width * MAX_TEXT_WIDTH_RATIO;
-        const baseFontSize = Math.round((canvas.width * NAME_FONT_BASE) / INVITATION_WIDTH);
-        const defaultFontSize = Math.max(NAME_FONT_MIN, Math.min(NAME_FONT_MAX, baseFontSize));
-        let fontSize = defaultFontSize;
-
-        if (elementMetrics?.fontSize) {
-          fontSize = Math.max(elementMetrics.fontSize, defaultFontSize);
-        }
-
-        context.textAlign = "center";
-        context.textBaseline = "middle";
-        context.fillStyle = "#121212";
-
-        const measure = (size: number) => {
-          context.font = `700 ${size}px ${NAME_FONT_FAMILIES}`;
-          return context.measureText(text).width;
-        };
-
-        let measured = measure(fontSize);
-        while (measured > maxWidth && fontSize > NAME_FONT_MIN) {
-          fontSize -= 2;
-          measured = measure(fontSize);
-        }
-
-        const scaledTarget = Math.min(Math.round(fontSize * DOWNLOAD_FONT_SCALE), NAME_FONT_MAX);
-        if (scaledTarget > fontSize) {
-          let scaledFontSize = scaledTarget;
-          let scaledMeasured = measure(scaledFontSize);
-          while (scaledMeasured > maxWidth && scaledFontSize > fontSize) {
-            scaledFontSize -= 1;
-            scaledMeasured = measure(scaledFontSize);
-          }
-          if (scaledMeasured <= maxWidth) {
-            fontSize = scaledFontSize;
-          }
-        }
-
-        context.font = `700 ${fontSize}px ${NAME_FONT_FAMILIES}`;
-        const targetX = elementMetrics?.center.x ?? canvas.width / 2 + xOffset;
-        const targetY = elementMetrics?.center.y ?? y;
-        context.fillText(text, targetX, targetY);
-      };
-
-      if (sanitizedTo || sanitizedFrom) {
-        centeredFillText(sanitizedTo, TO_TEXT_RATIO, TO_TEXT_X_OFFSET, toTextRef.current);
-        centeredFillText(sanitizedFrom, FROM_TEXT_RATIO, FROM_TEXT_X_OFFSET, fromTextRef.current);
-      }
-
-      const exportCanvas = createPreviewExportCanvas(canvas) ?? canvas;
-
       const link = downloadLinkRef.current;
       if (!link) {
         throw new Error("다운로드 링크가 준비되지 않았습니다.");
@@ -250,10 +87,12 @@ const IndexPage = () => {
       let blob: Blob | null = null;
       let dataUrlFallback: string | null = null;
 
-      if (exportCanvas.toBlob) {
-        blob = await new Promise<Blob | null>((resolve) => exportCanvas.toBlob(resolve, "image/png"));
-      } else {
-        const dataUrl = exportCanvas.toDataURL("image/png");
+      if (canvas.toBlob) {
+        blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+      }
+
+      if (!blob) {
+        const dataUrl = canvas.toDataURL("image/png");
         dataUrlFallback = dataUrl;
         const commaIndex = dataUrl.indexOf(",");
         const mimeType = commaIndex > -1 ? dataUrl.slice(5, dataUrl.indexOf(";")) : "image/png";
@@ -350,21 +189,6 @@ const IndexPage = () => {
     setFromName("");
   };
 
-  const toTextStyle = useMemo(
-    () => ({
-      top: `${TO_TEXT_RATIO * 100}%`,
-      left: `calc(50% ${TO_TEXT_X_OFFSET >= 0 ? "+" : "-"} ${Math.abs(TO_TEXT_X_OFFSET)}px)`,
-    }),
-    []
-  );
-  const fromTextStyle = useMemo(
-    () => ({
-      top: `${FROM_TEXT_RATIO * 100}%`,
-      left: `calc(50% ${FROM_TEXT_X_OFFSET >= 0 ? "+" : "-"} ${Math.abs(FROM_TEXT_X_OFFSET)}px)`,
-    }),
-    []
-  );
-
   return (
     <main className="landing">
       <div className="landing-wrapper">
@@ -405,29 +229,14 @@ const IndexPage = () => {
                 className="landing-result-card"
                 aria-live="polite"
                 aria-label="완성된 초대장 미리보기"
-                ref={resultCardRef}
               >
-                <img src={asset("/invitation_2.png")} alt="" className="landing-result-card__image" />
-                {toName && (
-                  <span
-                    className="landing-result-text landing-result-text--to"
-                    style={toTextStyle}
-                    aria-label="초대 받는 분"
-                    ref={toTextRef}
-                  >
-                    {toName}
-                  </span>
-                )}
-                {fromName && (
-                  <span
-                    className="landing-result-text landing-result-text--from"
-                    style={fromTextStyle}
-                    aria-label="초대 보내는 분"
-                    ref={fromTextRef}
-                  >
-                    {fromName}
-                  </span>
-                )}
+                <InvitationCanvas
+                  from={fromName}
+                  to={toName}
+                  canvasRef={canvasRef}
+                  className="landing-result-canvas"
+                  imageSrc="/invitation_2.png"
+                />
               </div>
               <div className="landing-result-actions">
                 <button
