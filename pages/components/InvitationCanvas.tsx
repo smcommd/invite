@@ -1,20 +1,18 @@
 import React, { MutableRefObject, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
-const INVITATION_WIDTH = 1024;
 const INVITATION_HEIGHT = 1464;
 const TO_TEXT_RATIO = 182 / INVITATION_HEIGHT;
 const FROM_TEXT_RATIO = 824 / INVITATION_HEIGHT;
 const TO_TEXT_X_OFFSET = -25;
 const FROM_TEXT_X_OFFSET = 50;
 const MAX_TEXT_WIDTH_RATIO = 0.95;
-const WIDTH_FILL_RATIO = 0.92;
-const NAME_FONT_BASE = 280;
-const NAME_FONT_MIN = 36;
-const NAME_FONT_MAX = 640;
+const TO_TEXT_TARGET_RATIO = 0.82;
+const FROM_TEXT_TARGET_RATIO = 0.78;
+const NAME_FONT_MIN = 48;
+const NAME_FONT_MAX_TO = 620;
+const NAME_FONT_MAX_FROM = 580;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
-const FONT_STEP_GROW = 2;
-const FONT_STEP_SHRINK = 2;
 
 export interface InvitationCanvasProps {
   from: string;
@@ -52,37 +50,36 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/result.
       context.clearRect(0, 0, canvas.width, canvas.height);
       context.drawImage(image, 0, 0);
 
-      const drawName = (text: string, ratio: number, xOffset = 0) => {
+      const drawName = (text: string, ratio: number, xOffset = 0, targetWidthRatio = 0.82, maxFontSize = NAME_FONT_MAX_TO) => {
         const sanitized = text.trim();
         if (!sanitized) return;
 
         const y = Math.round(canvas.height * ratio);
         const maxWidth = canvas.width * MAX_TEXT_WIDTH_RATIO;
-        let fontSize = Math.round((canvas.width * NAME_FONT_BASE) / INVITATION_WIDTH);
-        fontSize = Math.max(NAME_FONT_MIN, Math.min(NAME_FONT_MAX, fontSize));
+        const desiredWidth = Math.min(maxWidth, canvas.width * targetWidthRatio);
 
         const measure = (size: number) => {
           context.font = `700 ${size}px ${NAME_FONT_FAMILIES}`;
-          return context.measureText(sanitized).width;
+          const metrics = context.measureText(sanitized);
+          return metrics.actualBoundingBoxRight - metrics.actualBoundingBoxLeft || metrics.width;
         };
 
-        let measured = measure(fontSize);
-        while (measured > maxWidth && fontSize > NAME_FONT_MIN) {
-          fontSize -= FONT_STEP_SHRINK;
-          measured = measure(fontSize);
-        }
+        let low = NAME_FONT_MIN;
+        let high = Math.max(NAME_FONT_MIN, maxFontSize);
+        let best = NAME_FONT_MIN;
 
-        const desiredWidth = maxWidth * WIDTH_FILL_RATIO;
-        if (measured < desiredWidth) {
-          while (fontSize < NAME_FONT_MAX) {
-            const nextSize = fontSize + FONT_STEP_GROW;
-            const nextMeasured = measure(nextSize);
-            if (nextMeasured > maxWidth) break;
-            fontSize = nextSize;
-            measured = nextMeasured;
-            if (measured >= desiredWidth) break;
+        while (low <= high) {
+          const mid = Math.floor((low + high) / 2);
+          const measured = measure(mid);
+          if (measured <= desiredWidth) {
+            best = mid;
+            low = mid + 2;
+          } else {
+            high = mid - 2;
           }
         }
+
+        const fontSize = Math.min(best, maxFontSize);
 
         context.font = `700 ${fontSize}px ${NAME_FONT_FAMILIES}`;
         context.textAlign = "center";
@@ -92,8 +89,8 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/result.
         context.fillText(sanitized, x, y);
       };
 
-      drawName(to, TO_TEXT_RATIO, TO_TEXT_X_OFFSET);
-      drawName(from, FROM_TEXT_RATIO, FROM_TEXT_X_OFFSET);
+      drawName(to, TO_TEXT_RATIO, TO_TEXT_X_OFFSET, TO_TEXT_TARGET_RATIO, NAME_FONT_MAX_TO);
+      drawName(from, FROM_TEXT_RATIO, FROM_TEXT_X_OFFSET, FROM_TEXT_TARGET_RATIO, NAME_FONT_MAX_FROM);
       setIsReady(true);
       setError(null);
     };
