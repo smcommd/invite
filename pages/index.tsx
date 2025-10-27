@@ -41,6 +41,37 @@ const IndexPage = () => {
       return;
     }
 
+    const createScaledCanvas = (source: HTMLCanvasElement): HTMLCanvasElement | null => {
+      if (!source.width || !source.height) {
+        return null;
+      }
+
+      const SCALE_FACTOR = 0.7;
+      const MIN_WIDTH = 640;
+      const preferredScale = Math.min(1, Math.max(MIN_WIDTH / source.width, SCALE_FACTOR));
+      if (preferredScale >= 0.999) {
+        return null;
+      }
+
+      const targetWidth = Math.max(1, Math.round(source.width * preferredScale));
+      const targetHeight = Math.max(1, Math.round(source.height * preferredScale));
+
+      const scaledCanvas = document.createElement("canvas");
+      scaledCanvas.width = targetWidth;
+      scaledCanvas.height = targetHeight;
+      const context = scaledCanvas.getContext("2d");
+      if (!context) {
+        return null;
+      }
+
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+      context.drawImage(source, 0, 0, source.width, source.height, 0, 0, targetWidth, targetHeight);
+      return scaledCanvas;
+    };
+
+    const exportCanvas = createScaledCanvas(canvas) ?? canvas;
+
     setIsSaving(true);
     try {
       const link = downloadLinkRef.current;
@@ -87,12 +118,12 @@ const IndexPage = () => {
       let blob: Blob | null = null;
       let dataUrlFallback: string | null = null;
 
-      if (canvas.toBlob) {
-        blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+      if (exportCanvas.toBlob) {
+        blob = await new Promise<Blob | null>((resolve) => exportCanvas.toBlob(resolve, "image/png"));
       }
 
       if (!blob) {
-        const dataUrl = canvas.toDataURL("image/png");
+        const dataUrl = exportCanvas.toDataURL("image/png");
         dataUrlFallback = dataUrl;
         const commaIndex = dataUrl.indexOf(",");
         const mimeType = commaIndex > -1 ? dataUrl.slice(5, dataUrl.indexOf(";")) : "image/png";

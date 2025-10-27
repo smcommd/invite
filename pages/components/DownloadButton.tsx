@@ -19,7 +19,36 @@ const DownloadButton = ({ from, to, canvasRef, onReset }: DownloadButtonProps) =
 
     const fileName = `invitation-from-${encodeURIComponent(from)}-to-${encodeURIComponent(to)}.png`;
 
-    const exportCanvas = canvas;
+    const createScaledCanvas = (source: HTMLCanvasElement): HTMLCanvasElement | null => {
+      if (!source.width || !source.height) {
+        return null;
+      }
+
+      const SCALE_FACTOR = 0.7;
+      const MIN_WIDTH = 640;
+      const preferredScale = Math.min(1, Math.max(MIN_WIDTH / source.width, SCALE_FACTOR));
+      if (preferredScale >= 0.999) {
+        return null;
+      }
+
+      const targetWidth = Math.max(1, Math.round(source.width * preferredScale));
+      const targetHeight = Math.max(1, Math.round(source.height * preferredScale));
+
+      const scaledCanvas = document.createElement("canvas");
+      scaledCanvas.width = targetWidth;
+      scaledCanvas.height = targetHeight;
+      const context = scaledCanvas.getContext("2d");
+      if (!context) {
+        return null;
+      }
+
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+      context.drawImage(source, 0, 0, source.width, source.height, 0, 0, targetWidth, targetHeight);
+      return scaledCanvas;
+    };
+
+    const exportCanvas = createScaledCanvas(canvas) ?? canvas;
 
     const performDownload = (href: string, revoke?: () => void) => {
       const existingLink = linkRef.current;
