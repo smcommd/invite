@@ -8,11 +8,11 @@ const FROM_TEXT_RATIO = 824 / INVITATION_HEIGHT;
 const TO_TEXT_X_OFFSET = -25;
 const FROM_TEXT_X_OFFSET = 50;
 const MAX_TEXT_WIDTH_RATIO = 0.9;
-const NAME_FONT_BASE = 160;
+const NAME_FONT_BASE = 220;
 const NAME_FONT_MIN = 28;
-const NAME_FONT_MAX = 360;
+const NAME_FONT_MAX = 520;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
-const DOWNLOAD_FONT_SCALE = 2.6;
+const DOWNLOAD_FONT_SCALE = 3.2;
 
 export interface InvitationCanvasProps {
   from: string;
