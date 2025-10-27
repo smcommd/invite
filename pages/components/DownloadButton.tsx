@@ -23,18 +23,25 @@ const DownloadButton = ({ from, to, canvasRef, onReset }: DownloadButtonProps) =
       const rect = source.getBoundingClientRect();
       const cssWidth = Math.round(source.clientWidth || rect.width);
       const cssHeight = Math.round(source.clientHeight || rect.height);
-
       if (!cssWidth || !cssHeight) {
         return null;
       }
 
-      if (cssWidth === source.width && cssHeight === source.height) {
+      const pixelRatio = typeof window !== "undefined" ? Math.max(1, window.devicePixelRatio || 1) : 1;
+      const targetWidth = Math.min(source.width, Math.round(cssWidth * pixelRatio));
+      const targetHeight = Math.min(source.height, Math.round(cssHeight * pixelRatio));
+
+      if (targetWidth <= 0 || targetHeight <= 0) {
+        return null;
+      }
+
+      if (targetWidth === source.width && targetHeight === source.height) {
         return null;
       }
 
       const scaledCanvas = document.createElement("canvas");
-      scaledCanvas.width = cssWidth;
-      scaledCanvas.height = cssHeight;
+      scaledCanvas.width = targetWidth;
+      scaledCanvas.height = targetHeight;
       const context = scaledCanvas.getContext("2d");
       if (!context) {
         return null;
@@ -42,33 +49,34 @@ const DownloadButton = ({ from, to, canvasRef, onReset }: DownloadButtonProps) =
 
       context.imageSmoothingEnabled = true;
       context.imageSmoothingQuality = "high";
-      context.drawImage(source, 0, 0, source.width, source.height, 0, 0, cssWidth, cssHeight);
+      context.drawImage(source, 0, 0, source.width, source.height, 0, 0, targetWidth, targetHeight);
       return scaledCanvas;
     };
 
     const exportCanvas = createPreviewSizedCanvas(canvas) ?? canvas;
 
     const performDownload = (href: string, revoke?: () => void) => {
-      const link = linkRef.current ?? document.createElement("a");
-      const shouldAppend = !linkRef.current;
+      const existingLink = linkRef.current;
+      const link = existingLink ?? document.createElement("a");
+      const shouldAppend = !existingLink;
 
       link.href = href;
       link.download = fileName;
-
       if (shouldAppend) {
+        link.style.display = "none";
         document.body.appendChild(link);
       }
 
       link.click();
 
-      window.setTimeout(() => {
+      window.requestAnimationFrame(() => {
         link.removeAttribute("href");
         link.removeAttribute("download");
-        if (shouldAppend && link.parentNode) {
-          link.parentNode.removeChild(link);
-        }
         revoke?.();
-      }, 0);
+        if (shouldAppend) {
+          link.remove();
+        }
+      });
     };
 
     if (exportCanvas.toBlob) {

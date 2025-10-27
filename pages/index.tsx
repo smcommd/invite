@@ -65,6 +65,39 @@ const IndexPage = () => {
         throw new Error("캔버스 컨텍스트를 초기화할 수 없습니다.");
       }
 
+      const createPreviewExportCanvas = (source: HTMLCanvasElement): HTMLCanvasElement | null => {
+        const card = resultCardRef.current;
+        const cardRect = card?.getBoundingClientRect();
+        if (!cardRect || !cardRect.width || !cardRect.height) {
+          return null;
+        }
+
+        const pixelRatio = typeof window !== "undefined" ? Math.max(1, window.devicePixelRatio || 1) : 1;
+        const targetWidth = Math.min(source.width, Math.round(cardRect.width * pixelRatio));
+        const targetHeight = Math.min(source.height, Math.round(cardRect.height * pixelRatio));
+
+        if (targetWidth <= 0 || targetHeight <= 0) {
+          return null;
+        }
+
+        if (targetWidth === source.width && targetHeight === source.height) {
+          return null;
+        }
+
+        const exportCanvas = document.createElement("canvas");
+        exportCanvas.width = targetWidth;
+        exportCanvas.height = targetHeight;
+        const exportContext = exportCanvas.getContext("2d");
+        if (!exportContext) {
+          return null;
+        }
+
+        exportContext.imageSmoothingEnabled = true;
+        exportContext.imageSmoothingQuality = "high";
+        exportContext.drawImage(source, 0, 0, source.width, source.height, 0, 0, targetWidth, targetHeight);
+        return exportCanvas;
+      };
+
       if (document.fonts?.ready) {
         try {
           await document.fonts.ready;
@@ -171,6 +204,8 @@ const IndexPage = () => {
         centeredFillText(sanitizedFrom, FROM_TEXT_RATIO, FROM_TEXT_X_OFFSET, fromTextRef.current);
       }
 
+      const exportCanvas = createPreviewExportCanvas(canvas) ?? canvas;
+
       const link = downloadLinkRef.current;
       if (!link) {
         throw new Error("다운로드 링크가 준비되지 않았습니다.");
@@ -215,10 +250,10 @@ const IndexPage = () => {
       let blob: Blob | null = null;
       let dataUrlFallback: string | null = null;
 
-      if (canvas.toBlob) {
-        blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+      if (exportCanvas.toBlob) {
+        blob = await new Promise<Blob | null>((resolve) => exportCanvas.toBlob(resolve, "image/png"));
       } else {
-        const dataUrl = canvas.toDataURL("image/png");
+        const dataUrl = exportCanvas.toDataURL("image/png");
         dataUrlFallback = dataUrl;
         const commaIndex = dataUrl.indexOf(",");
         const mimeType = commaIndex > -1 ? dataUrl.slice(5, dataUrl.indexOf(";")) : "image/png";
