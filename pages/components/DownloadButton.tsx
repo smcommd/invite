@@ -19,38 +19,74 @@ const DownloadButton = ({ from, to, canvasRef, onReset }: DownloadButtonProps) =
 
     const fileName = `invitation-from-${encodeURIComponent(from)}-to-${encodeURIComponent(to)}.png`;
 
-    if (canvas.toBlob) {
-      canvas.toBlob((blob) => {
+    const createPreviewSizedCanvas = (source: HTMLCanvasElement): HTMLCanvasElement | null => {
+      const rect = source.getBoundingClientRect();
+      const cssWidth = Math.round(source.clientWidth || rect.width);
+      const cssHeight = Math.round(source.clientHeight || rect.height);
+
+      if (!cssWidth || !cssHeight) {
+        return null;
+      }
+
+      if (cssWidth === source.width && cssHeight === source.height) {
+        return null;
+      }
+
+      const scaledCanvas = document.createElement("canvas");
+      scaledCanvas.width = cssWidth;
+      scaledCanvas.height = cssHeight;
+      const context = scaledCanvas.getContext("2d");
+      if (!context) {
+        return null;
+      }
+
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+      context.drawImage(source, 0, 0, source.width, source.height, 0, 0, cssWidth, cssHeight);
+      return scaledCanvas;
+    };
+
+    const exportCanvas = createPreviewSizedCanvas(canvas) ?? canvas;
+
+    const performDownload = (href: string, revoke?: () => void) => {
+      const link = linkRef.current ?? document.createElement("a");
+      const shouldAppend = !linkRef.current;
+
+      link.href = href;
+      link.download = fileName;
+
+      if (shouldAppend) {
+        document.body.appendChild(link);
+      }
+
+      link.click();
+
+      window.setTimeout(() => {
+        link.removeAttribute("href");
+        link.removeAttribute("download");
+        if (shouldAppend && link.parentNode) {
+          link.parentNode.removeChild(link);
+        }
+        revoke?.();
+      }, 0);
+    };
+
+    if (exportCanvas.toBlob) {
+      exportCanvas.toBlob((blob) => {
         if (!blob) {
           setIsDownloading(false);
           return;
         }
+
         const objectUrl = URL.createObjectURL(blob);
-        const link = linkRef.current ?? document.createElement("a");
-        link.href = objectUrl;
-        link.download = fileName;
-
-        if (!linkRef.current) {
-          document.body.appendChild(link);
-        }
-
-        link.click();
-        URL.revokeObjectURL(objectUrl);
+        performDownload(objectUrl, () => URL.revokeObjectURL(objectUrl));
         setIsDownloading(false);
-      });
+      }, "image/png");
       return;
     }
 
-    const dataUrl = canvas.toDataURL("image/png");
-    const link = linkRef.current ?? document.createElement("a");
-    link.href = dataUrl;
-    link.download = fileName;
-
-    if (!linkRef.current) {
-      document.body.appendChild(link);
-    }
-
-    link.click();
+    const dataUrl = exportCanvas.toDataURL("image/png");
+    performDownload(dataUrl);
     setIsDownloading(false);
   };
 
