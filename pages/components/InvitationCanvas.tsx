@@ -7,12 +7,14 @@ const TO_TEXT_RATIO = 182 / INVITATION_HEIGHT;
 const FROM_TEXT_RATIO = 824 / INVITATION_HEIGHT;
 const TO_TEXT_X_OFFSET = -25;
 const FROM_TEXT_X_OFFSET = 50;
-const MAX_TEXT_WIDTH_RATIO = 0.9;
-const NAME_FONT_BASE = 220;
-const NAME_FONT_MIN = 28;
-const NAME_FONT_MAX = 520;
+const MAX_TEXT_WIDTH_RATIO = 0.95;
+const WIDTH_FILL_RATIO = 0.92;
+const NAME_FONT_BASE = 280;
+const NAME_FONT_MIN = 36;
+const NAME_FONT_MAX = 640;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
-const DOWNLOAD_FONT_SCALE = 3.2;
+const FONT_STEP_GROW = 2;
+const FONT_STEP_SHRINK = 2;
 
 export interface InvitationCanvasProps {
   from: string;
@@ -66,20 +68,19 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/result.
 
         let measured = measure(fontSize);
         while (measured > maxWidth && fontSize > NAME_FONT_MIN) {
-          fontSize -= 2;
+          fontSize -= FONT_STEP_SHRINK;
           measured = measure(fontSize);
         }
 
-        const scaledTarget = Math.min(Math.round(fontSize * DOWNLOAD_FONT_SCALE), NAME_FONT_MAX);
-        if (scaledTarget > fontSize) {
-          let scaledFontSize = scaledTarget;
-          let scaledMeasured = measure(scaledFontSize);
-          while (scaledMeasured > maxWidth && scaledFontSize > fontSize) {
-            scaledFontSize -= 1;
-            scaledMeasured = measure(scaledFontSize);
-          }
-          if (scaledMeasured <= maxWidth) {
-            fontSize = scaledFontSize;
+        const desiredWidth = maxWidth * WIDTH_FILL_RATIO;
+        if (measured < desiredWidth) {
+          while (fontSize < NAME_FONT_MAX) {
+            const nextSize = fontSize + FONT_STEP_GROW;
+            const nextMeasured = measure(nextSize);
+            if (nextMeasured > maxWidth) break;
+            fontSize = nextSize;
+            measured = nextMeasured;
+            if (measured >= desiredWidth) break;
           }
         }
 

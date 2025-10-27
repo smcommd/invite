@@ -19,41 +19,7 @@ const DownloadButton = ({ from, to, canvasRef, onReset }: DownloadButtonProps) =
 
     const fileName = `invitation-from-${encodeURIComponent(from)}-to-${encodeURIComponent(to)}.png`;
 
-    const createPreviewSizedCanvas = (source: HTMLCanvasElement): HTMLCanvasElement | null => {
-      const rect = source.getBoundingClientRect();
-      const cssWidth = Math.round(source.clientWidth || rect.width);
-      const cssHeight = Math.round(source.clientHeight || rect.height);
-      if (!cssWidth || !cssHeight) {
-        return null;
-      }
-
-      const pixelRatio = typeof window !== "undefined" ? Math.max(1, window.devicePixelRatio || 1) : 1;
-      const targetWidth = Math.min(source.width, Math.round(cssWidth * pixelRatio));
-      const targetHeight = Math.min(source.height, Math.round(cssHeight * pixelRatio));
-
-      if (targetWidth <= 0 || targetHeight <= 0) {
-        return null;
-      }
-
-      if (targetWidth === source.width && targetHeight === source.height) {
-        return null;
-      }
-
-      const scaledCanvas = document.createElement("canvas");
-      scaledCanvas.width = targetWidth;
-      scaledCanvas.height = targetHeight;
-      const context = scaledCanvas.getContext("2d");
-      if (!context) {
-        return null;
-      }
-
-      context.imageSmoothingEnabled = true;
-      context.imageSmoothingQuality = "high";
-      context.drawImage(source, 0, 0, source.width, source.height, 0, 0, targetWidth, targetHeight);
-      return scaledCanvas;
-    };
-
-    const exportCanvas = createPreviewSizedCanvas(canvas) ?? canvas;
+    const exportCanvas = canvas;
 
     const performDownload = (href: string, revoke?: () => void) => {
       const existingLink = linkRef.current;
