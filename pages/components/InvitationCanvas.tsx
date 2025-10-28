@@ -14,8 +14,8 @@ const NAME_FONT_MIN = 48;
 const NAME_FONT_MAX_TO = 900;
 const NAME_FONT_MAX_FROM = 820;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
-const MIN_RENDER_WIDTH = 320;
-const MAX_RENDER_WIDTH = 320;
+const MIN_RENDER_WIDTH = 1024;
+const MAX_RENDER_WIDTH = 1024;
 
 export interface InvitationCanvasProps {
   from: string;
