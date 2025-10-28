@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import InvitationCanvas from "./components/InvitationCanvas";
+import { createPreviewScaleCanvas } from "../lib/canvas";
 
 const IndexPage = () => {
   const { basePath } = useRouter();
@@ -40,42 +41,6 @@ const IndexPage = () => {
       window.alert("초대장 미리보기를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.");
       return;
     }
-
-    const createPreviewScaleCanvas = (source: HTMLCanvasElement): HTMLCanvasElement | null => {
-      if (!source.width || !source.height) {
-        return null;
-      }
-
-      const rect = source.getBoundingClientRect();
-      if (!rect.width || !rect.height) {
-        return null;
-      }
-
-      const devicePixelRatio = typeof window !== "undefined" ? Math.max(1, window.devicePixelRatio || 1) : 1;
-      const targetWidth = Math.round(rect.width * devicePixelRatio);
-      const targetHeight = Math.round(rect.height * devicePixelRatio);
-
-      if (!targetWidth || !targetHeight) {
-        return null;
-      }
-
-      if (targetWidth >= source.width && targetHeight >= source.height) {
-        return null;
-      }
-
-      const exportCanvas = document.createElement("canvas");
-      exportCanvas.width = Math.min(source.width, targetWidth);
-      exportCanvas.height = Math.min(source.height, targetHeight);
-      const ctx = exportCanvas.getContext("2d");
-      if (!ctx) {
-        return null;
-      }
-
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-      ctx.drawImage(source, 0, 0, source.width, source.height, 0, 0, exportCanvas.width, exportCanvas.height);
-      return exportCanvas;
-    };
 
     const exportCanvas = createPreviewScaleCanvas(canvas) ?? canvas;
 
