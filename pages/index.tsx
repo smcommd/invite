@@ -41,36 +41,43 @@ const IndexPage = () => {
       return;
     }
 
-    const createScaledCanvas = (source: HTMLCanvasElement): HTMLCanvasElement | null => {
+    const createPreviewScaleCanvas = (source: HTMLCanvasElement): HTMLCanvasElement | null => {
       if (!source.width || !source.height) {
         return null;
       }
 
-      const SCALE_FACTOR = 0.7;
-      const MIN_WIDTH = 640;
-      const preferredScale = Math.min(1, Math.max(MIN_WIDTH / source.width, SCALE_FACTOR));
-      if (preferredScale >= 0.999) {
+      const rect = source.getBoundingClientRect();
+      if (!rect.width || !rect.height) {
         return null;
       }
 
-      const targetWidth = Math.max(1, Math.round(source.width * preferredScale));
-      const targetHeight = Math.max(1, Math.round(source.height * preferredScale));
+      const devicePixelRatio = typeof window !== "undefined" ? Math.max(1, window.devicePixelRatio || 1) : 1;
+      const targetWidth = Math.round(rect.width * devicePixelRatio);
+      const targetHeight = Math.round(rect.height * devicePixelRatio);
 
-      const scaledCanvas = document.createElement("canvas");
-      scaledCanvas.width = targetWidth;
-      scaledCanvas.height = targetHeight;
-      const context = scaledCanvas.getContext("2d");
-      if (!context) {
+      if (!targetWidth || !targetHeight) {
         return null;
       }
 
-      context.imageSmoothingEnabled = true;
-      context.imageSmoothingQuality = "high";
-      context.drawImage(source, 0, 0, source.width, source.height, 0, 0, targetWidth, targetHeight);
-      return scaledCanvas;
+      if (targetWidth >= source.width && targetHeight >= source.height) {
+        return null;
+      }
+
+      const exportCanvas = document.createElement("canvas");
+      exportCanvas.width = Math.min(source.width, targetWidth);
+      exportCanvas.height = Math.min(source.height, targetHeight);
+      const ctx = exportCanvas.getContext("2d");
+      if (!ctx) {
+        return null;
+      }
+
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(source, 0, 0, source.width, source.height, 0, 0, exportCanvas.width, exportCanvas.height);
+      return exportCanvas;
     };
 
-    const exportCanvas = createScaledCanvas(canvas) ?? canvas;
+    const exportCanvas = createPreviewScaleCanvas(canvas) ?? canvas;
 
     setIsSaving(true);
     try {
