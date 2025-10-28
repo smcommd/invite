@@ -14,6 +14,8 @@ const NAME_FONT_MIN = 48;
 const NAME_FONT_MAX_TO = 900;
 const NAME_FONT_MAX_FROM = 820;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
+const MIN_RENDER_WIDTH = 640;
+const MAX_RENDER_WIDTH = 960;
 
 export interface InvitationCanvasProps {
   from: string;
@@ -139,7 +141,8 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/result.
       const rect = canvas.getBoundingClientRect();
       const devicePixelRatio = typeof window !== "undefined" ? Math.max(1, window.devicePixelRatio || 1) : 1;
       const cssWidth = rect.width || loadedImage.width;
-      const targetWidth = Math.max(1, Math.round(cssWidth * devicePixelRatio));
+      const desiredWidth = Math.round(cssWidth * devicePixelRatio);
+      const targetWidth = Math.max(MIN_RENDER_WIDTH, Math.min(MAX_RENDER_WIDTH, desiredWidth || MIN_RENDER_WIDTH));
       const aspectRatio = loadedImage.naturalHeight && loadedImage.naturalWidth
         ? loadedImage.naturalHeight / loadedImage.naturalWidth
         : INVITATION_HEIGHT / INVITATION_WIDTH;
@@ -150,8 +153,10 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/result.
         canvas.height = targetHeight;
       }
 
-      canvas.style.width = "100%";
-      canvas.style.height = `${targetHeight / devicePixelRatio}px`;
+      const displayWidth = rect.width || targetWidth / devicePixelRatio;
+      const displayHeight = displayWidth * (targetHeight / targetWidth);
+      canvas.style.width = `${displayWidth}px`;
+      canvas.style.height = `${displayHeight}px`;
 
       context.clearRect(0, 0, canvas.width, canvas.height);
       drawNames();

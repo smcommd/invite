@@ -3,19 +3,9 @@ export const createPreviewScaleCanvas = (source: HTMLCanvasElement): HTMLCanvasE
     return null;
   }
 
-  const rect = source.getBoundingClientRect();
-  if (!rect.width || !rect.height) {
-    return null;
-  }
-
-  const cssWidth = Math.max(1, Math.round(rect.width));
-  const aspectRatio = source.height / source.width;
-  const cssHeight = Math.max(1, Math.round(cssWidth * aspectRatio));
-
   const exportCanvas = document.createElement("canvas");
-  exportCanvas.width = cssWidth;
-  exportCanvas.height = cssHeight;
-
+  exportCanvas.width = source.width;
+  exportCanvas.height = source.height;
   const context = exportCanvas.getContext("2d");
   if (!context) {
     return null;
