@@ -25,7 +25,7 @@ export interface InvitationCanvasProps {
   imageSrc?: string;
 }
 
-const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/result.png" }: InvitationCanvasProps) => {
+const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/invitation_2.svg" }: InvitationCanvasProps) => {
   const { basePath } = useRouter();
   const asset = useCallback((path: string) => {
     const normalized = path.startsWith("/") ? path : `/${path}`;

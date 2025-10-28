@@ -196,7 +196,7 @@ const IndexPage = () => {
     <main className="landing">
       <div className="landing-wrapper">
         <img
-          src={showResult ? asset("/result.png") : asset("/invitation.png")}
+          src={asset("/invitation_2.svg")}
           alt="졸업전시 초대장 미리보기 이미지"
           className="landing-image-only"
         />
@@ -238,7 +238,7 @@ const IndexPage = () => {
                   to={toName}
                   canvasRef={canvasRef}
                   className="landing-result-canvas"
-                  imageSrc="/invitation_2.png"
+                  imageSrc="/invitation_2.svg"
                 />
               </div>
               <div className="landing-result-actions">
