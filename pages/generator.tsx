@@ -8,6 +8,16 @@ const GeneratorPage = () => {
   const [isPreviewing, setIsPreviewing] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const canvasFontOptions = useMemo(() => ({
+    to: {
+      weight: 500,
+      manualSize: 560,
+    },
+    from: {
+      weight: 400,
+      manualSize: 520,
+    },
+  }), []);
   const canPreview = useMemo(() => fromName.trim().length > 0 && toName.trim().length > 0, [fromName, toName]);
 
   const handleSubmit = (event: FormEvent) => {
@@ -96,7 +106,13 @@ const GeneratorPage = () => {
                   <p className="preview-label">To.</p>
                   <p>2025학년도 상명대학교 디자인대학 커뮤니케이션디자인전공 졸업전시회에 초대합니다.</p>
                 </div>
-                <InvitationCanvas from={fromName} to={toName} canvasRef={canvasRef} className="preview-canvas" />
+                <InvitationCanvas
+                  from={fromName}
+                  to={toName}
+                  canvasRef={canvasRef}
+                  className="preview-canvas"
+                  fontOptions={canvasFontOptions}
+                />
                 <div className="preview-details">
                   <p>
                     <strong>From.</strong> {fromName}

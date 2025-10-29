@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import InvitationCanvas from "./components/InvitationCanvas";
@@ -259,6 +259,7 @@ const IndexPage = () => {
                   canvasRef={canvasRef}
                   className="landing-result-canvas"
                   imageSrc="/invitation_2.svg"
+                  fontOptions={CANVAS_FONT_OPTIONS}
                 />
               </div>
               <div className="landing-result-actions">
@@ -301,3 +302,13 @@ const IndexPage = () => {
 };
 
 export default IndexPage;
+  const CANVAS_FONT_OPTIONS = useMemo(() => ({
+    to: {
+      weight: 500,
+      manualSize: 560,
+    },
+    from: {
+      weight: 400,
+      manualSize: 520,
+    },
+  }), []);
