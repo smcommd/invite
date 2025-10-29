@@ -25,14 +25,14 @@ const IndexClient = () => {
 
   // 캔버스(저장용) 폰트 옵션
   const CANVAS_FONT_OPTIONS = useMemo(() => ({
-    to: { weight: 400, manualSize: 1200 },
-    from: { weight: 400, manualSize: 1200 },
+    to: { weight: 400, manualSize: 120 },
+    from: { weight: 400, manualSize: 120 },
   }), []);
 
   // 메인 화면 오버레이(입력창)에만 적용할 프리뷰 폰트 옵션 (작게 표시)
   const OVERLAY_FONT_OPTIONS = useMemo(() => ({
-    to: { weight: 400, manualSize: 600 },
-    from: { weight: 400, manualSize: 600 },
+    to: { weight: 400, manualSize: 60 },
+    from: { weight: 400, manualSize: 60 },
   }), []);
 
   const updateLandingFontScale = useCallback(() => {
