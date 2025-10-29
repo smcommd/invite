@@ -1,0 +1,47 @@
+name: Deploy to GitHub Pages (docs)
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - 'docs/**'
+      - '.github/**'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (Next.js export)
+        run: |
+          npm run build
+          npx next export || true
+
+      - name: Prepare docs folder
+        run: |
+          rm -rf docs
+          mkdir -p docs
+          cp -R out/* docs/
+          touch docs/.nojekyll
+
+      - name: Commit and push docs
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'docs'
+          message: 'Deploy: update docs [skip ci]'
+          push: true
+
