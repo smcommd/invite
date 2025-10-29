@@ -7,7 +7,7 @@ const nextConfig = {
 
 const isProd = process.env.NODE_ENV === "production";
 if (isProd) {
-  const repositoryName = "invite_2";
+  const repositoryName = "invite";
   nextConfig.basePath = `/${repositoryName}`;
   nextConfig.assetPrefix = `/${repositoryName}/`;
 }
@@ -15,4 +15,3 @@ if (isProd) {
 nextConfig.images = { unoptimized: true };
 
 module.exports = nextConfig;
-
