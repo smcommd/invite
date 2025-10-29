@@ -18,6 +18,8 @@ const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",san
 const MIN_RENDER_WIDTH = 768;
 const MAX_RENDER_WIDTH = 768;
 const FONT_LOAD_BASE_SIZE = 36;
+// Treat manualSize as a value defined for this base width and scale with actual canvas width
+const MANUAL_SIZE_BASE_WIDTH = 1024;
 
 interface CanvasFontConfig {
   weight?: number;
@@ -160,7 +162,15 @@ const InvitationCanvas = ({
           return metrics.actualBoundingBoxRight - metrics.actualBoundingBoxLeft || metrics.width;
         };
 
-        let fontSize = config.manualSize > 0 ? config.manualSize : config.minSize;
+        let fontSize = config.manualSize > 0
+          ? Math.max(
+              config.minSize,
+              Math.min(
+                config.maxSize,
+                Math.round(config.manualSize * (canvas.width / MANUAL_SIZE_BASE_WIDTH)),
+              ),
+            )
+          : config.minSize;
 
         if (config.manualSize <= 0) {
           let low = config.minSize;
