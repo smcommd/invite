@@ -122,7 +122,7 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/invitat
 
         const fontSize = Math.min(best, maxFontSize);
 
-        context.font = `700 ${fontSize}px ${NAME_FONT_FAMILIES}`;
+        context.font = `400 ${fontSize}px ${NAME_FONT_FAMILIES}`;
         context.textAlign = "center";
         context.textBaseline = "middle";
         context.fillStyle = "#121212";
