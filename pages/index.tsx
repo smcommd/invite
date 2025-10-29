@@ -122,6 +122,7 @@ const IndexPage = () => {
       const isIOSDevice = /iP(ad|hone|od)/i.test(userAgent);
       const isMobileSafari = isIOSDevice && /Safari/i.test(userAgent) && !/CriOS|FxiOS|EdgiOS/i.test(userAgent);
       const isDesktopSafari = !isIOSDevice && /Safari/i.test(userAgent) && !/Chrome|CriOS|Edg|OPR/i.test(userAgent);
+      const isAndroidDevice = /Android/i.test(userAgent);
 
       const sharePayload: ShareData & { files?: File[] } = {
         title: sanitizedFrom ? `${sanitizedFrom}의 초대장` : "초대장",
@@ -137,17 +138,16 @@ const IndexPage = () => {
       }
 
       const supportsShare = Boolean(nav?.share);
-      const canSharePayload = (() => {
-        if (!supportsShare || !nav) return false;
+      const canShareFiles = (() => {
+        if (!supportsShare || !nav || !sharePayload.files?.length) return false;
         if (typeof nav.canShare !== "function") return true;
-        const shareCheckData: ShareData = sharePayload.files ? { files: sharePayload.files } : {};
         try {
-          return nav.canShare(shareCheckData);
+          return nav.canShare({ files: sharePayload.files });
         } catch {
           return false;
         }
       })();
-      const shouldOfferShare = supportsShare && canSharePayload && (isMobileSafari || isDesktopSafari);
+      const shouldAttemptShare = supportsShare && (isIOSDevice || isAndroidDevice || isMobileSafari || isDesktopSafari);
 
       let downloadHref = dataUrlFallback;
       let revoke: (() => void) | undefined;
@@ -158,24 +158,43 @@ const IndexPage = () => {
         revoke = () => URL.revokeObjectURL(blobUrl);
       }
 
-      const downloadSucceeded = triggerDownload(downloadHref, revoke);
+      const shareWithData = async (data: ShareData & { files?: File[] }) => {
+        if (!nav?.share) return false;
+        try {
+          await nav.share(data);
+          return true;
+        } catch (shareError) {
+          if ((shareError as DOMException)?.name === "AbortError") {
+            return true;
+          }
+          console.warn("초대장 공유에 실패했습니다.", shareError);
+          return false;
+        }
+      };
+
       let shareHandled = false;
 
-      if (shouldOfferShare && nav?.share) {
-        try {
-          await nav.share(sharePayload);
-          shareHandled = true;
-        } catch (shareError) {
-          console.warn("초대장 공유에 실패했습니다.", shareError);
+      if (shouldAttemptShare && nav?.share) {
+        if (sharePayload.files && canShareFiles) {
+          shareHandled = await shareWithData(sharePayload);
+        }
+        if (!shareHandled) {
+          const fallbackShare: ShareData = {
+            title: sharePayload.title,
+            text: sharePayload.text,
+          };
+          shareHandled = await shareWithData(fallbackShare);
         }
       }
 
-      if (!shareHandled && !downloadSucceeded && isIOSDevice && supportsShare && canSharePayload && nav?.share) {
-        try {
-          await nav.share(sharePayload);
-        } catch (shareError) {
-          console.warn("초대장 공유에 실패했습니다.", shareError);
-        }
+      if (shareHandled) {
+        revoke?.();
+        return;
+      }
+
+      const downloadSucceeded = triggerDownload(downloadHref, revoke);
+      if (!downloadSucceeded && shouldAttemptShare && nav?.share) {
+        await shareWithData(sharePayload);
       }
     } catch (error) {
       console.error(error);
