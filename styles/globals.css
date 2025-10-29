@@ -147,7 +147,7 @@ button:disabled {
 
 .landing-result-actions {
   position: absolute;
-  top: calc((820 + 1464) / 3120 * 100% + 48px);
+  top: calc((820 + 1464) / 3120 * 100% + 28px);
   left: 50%;
   transform: translate(-50%, 0);
   display: flex;
