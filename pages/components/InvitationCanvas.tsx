@@ -18,8 +18,8 @@ const NAME_FONT_WEIGHT = 700;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
 // Allow high-DPI rendering up to the source PNG width for crisp preview
 const MIN_RENDER_WIDTH = 768;
-const MAX_RENDER_WIDTH = 2304; // match regenerated invitation_2.png width
-const EXTRA_RENDER_SCALE = 2; // boost preview render resolution for crisper background/text
+const MAX_RENDER_WIDTH = 3072; // match regenerated invitation_2.png width
+const EXTRA_RENDER_SCALE = 3; // boost preview render resolution for crisper background/text
 const FONT_LOAD_BASE_SIZE = 36;
 // Treat manualSize as a value defined for this base width and scale with actual canvas width
 const MANUAL_SIZE_BASE_WIDTH = 1024;

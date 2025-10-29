@@ -16,8 +16,8 @@ async function main() {
     process.exit(1);
   }
 
-  // Target 3x of the current canvas base (768 → 2304)
-  const targetWidth = 2304;
+  // Target higher resolution (4x of 768 → 3072) for extra crispness
+  const targetWidth = parseInt(process.env.WIDTH || '3072', 10);
 
   const svgBuffer = fs.readFileSync(svgPath);
   await sharp(svgBuffer)
@@ -32,4 +32,3 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-
