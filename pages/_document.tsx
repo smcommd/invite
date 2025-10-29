@@ -1,6 +1,6 @@
 import { Html, Head, Main, NextScript } from "next/document";
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://smucdinvite.com").replace(/\/$/, "");
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.smucdinvite.com").replace(/\/$/, "");
 const OG_IMAGE_URL = `${SITE_URL}/thum.png`;
 const SITE_TITLE = "상명대학교 커뮤니케이션디자인 졸업전시 초대장";
 const SITE_DESCRIPTION = "To/From 정보를 입력하면 졸업전시 초대장을 바로 만들고 저장할 수 있는 웹 초대장입니다.";
@@ -15,6 +15,8 @@ const Document = () => {
         <meta property="og:description" content={SITE_DESCRIPTION} />
         <meta property="og:url" content={SITE_URL} />
         <meta property="og:image" content={OG_IMAGE_URL} />
+        <meta property="og:image:secure_url" content={OG_IMAGE_URL} />
+        <meta property="og:image:type" content="image/png" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={SITE_TITLE} />
         <meta name="twitter:description" content={SITE_DESCRIPTION} />
