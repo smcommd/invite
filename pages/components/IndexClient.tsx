@@ -25,13 +25,13 @@ const IndexClient = () => {
 
   // 캔버스(저장용) 폰트 옵션 + 위치 미세 조정(디자인 px 기준)
   const CANVAS_FONT_OPTIONS = useMemo(() => ({
-    to: { weight: 400, manualSize: 60, xOffset: -90, yOffset: 5 },
+    to: { weight: 400, manualSize: 60, xOffset: -80, yOffset: 5 },
     from: { weight: 400, manualSize: 60, xOffset: 135, yOffset: 5},
   }), []);
 
   // 메인 화면 오버레이(입력창)에만 적용할 프리뷰 폰트 옵션 (작게 표시)
   const OVERLAY_FONT_OPTIONS = useMemo(() => ({
-    to: { weight: 400, manualSize: 60, xOffset: -90, yOffset: 5 },
+    to: { weight: 400, manualSize: 60, xOffset: -80, yOffset: 5 },
     from: { weight: 400, manualSize: 60, xOffset: 135, yOffset: 5 },
   }), []);
 
