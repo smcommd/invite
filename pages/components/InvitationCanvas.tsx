@@ -1,12 +1,12 @@
 import React, { MutableRefObject, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 
-const INVITATION_WIDTH = 1024;
-const INVITATION_HEIGHT = 1464;
-const TO_TEXT_RATIO = 182 / INVITATION_HEIGHT;
-const FROM_TEXT_RATIO = 824 / INVITATION_HEIGHT;
-const TO_TEXT_X_OFFSET = -25;
-const FROM_TEXT_X_OFFSET = 50;
+const INVITATION_WIDTH = 768;
+const INVITATION_HEIGHT = 1098;
+const TO_TEXT_RATIO = 137 / INVITATION_HEIGHT;
+const FROM_TEXT_RATIO = 619 / INVITATION_HEIGHT;
+const TO_TEXT_X_OFFSET = -19;
+const FROM_TEXT_X_OFFSET = 38;
 const MAX_TEXT_WIDTH_RATIO = 0.98;
 const TO_TEXT_TARGET_RATIO = 0.92;
 const FROM_TEXT_TARGET_RATIO = 0.92;
@@ -15,8 +15,8 @@ const NAME_FONT_MAX_TO = 900;
 const NAME_FONT_MAX_FROM = 820;
 const NAME_FONT_WEIGHT = 700;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
-const MIN_RENDER_WIDTH = 1024;
-const MAX_RENDER_WIDTH = 1024;
+const MIN_RENDER_WIDTH = 768;
+const MAX_RENDER_WIDTH = 768;
 const FONT_LOAD_BASE_SIZE = 36;
 
 interface CanvasFontConfig {
