@@ -3,10 +3,11 @@ import { useRouter } from "next/router";
 
 const INVITATION_WIDTH = 768;
 const INVITATION_HEIGHT = 1098;
-const TO_TEXT_RATIO = 137 / INVITATION_HEIGHT;
-const FROM_TEXT_RATIO = 619 / INVITATION_HEIGHT;
-const TO_TEXT_X_OFFSET = -80; // left by 80px
-const FROM_TEXT_X_OFFSET = 100; // right by 100px
+// Move TO up by 5px and FROM up by 5px (relative to 768x1098 base)
+const TO_TEXT_RATIO = 132 / INVITATION_HEIGHT;
+const FROM_TEXT_RATIO = 614 / INVITATION_HEIGHT;
+const TO_TEXT_X_OFFSET = -90; // left by 90px
+const FROM_TEXT_X_OFFSET = 110; // right by 110px
 const MAX_TEXT_WIDTH_RATIO = 0.98;
 const TO_TEXT_TARGET_RATIO = 0.92;
 const FROM_TEXT_TARGET_RATIO = 0.92;
