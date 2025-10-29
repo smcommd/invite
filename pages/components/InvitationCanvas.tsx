@@ -13,6 +13,7 @@ const FROM_TEXT_TARGET_RATIO = 0.9;
 const NAME_FONT_MIN = 48;
 const NAME_FONT_MAX_TO = 900;
 const NAME_FONT_MAX_FROM = 820;
+const NAME_FONT_WEIGHT = 700;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
 const MIN_RENDER_WIDTH = 1024;
 const MAX_RENDER_WIDTH = 1024;
@@ -66,9 +67,9 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/invitat
       if (document.fonts?.load) {
         try {
           await Promise.all([
-            document.fonts.load("700 36px rixdongnimgothic-pro"),
-            document.fonts.load("700 36px 'rixdongnimgothic-pro'"),
-            document.fonts.load("700 36px 'tk-rixdongnimgothic-pro'"),
+            document.fonts.load(`${NAME_FONT_WEIGHT} 36px rixdongnimgothic-pro`),
+            document.fonts.load(`${NAME_FONT_WEIGHT} 36px 'rixdongnimgothic-pro'`),
+            document.fonts.load(`${NAME_FONT_WEIGHT} 36px 'tk-rixdongnimgothic-pro'`),
           ]);
         } catch {
           // ignore
@@ -100,7 +101,7 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/invitat
         const desiredWidth = Math.min(maxWidth, canvas.width * targetWidthRatio);
 
         const measure = (size: number) => {
-          context.font = `700 ${size}px ${NAME_FONT_FAMILIES}`;
+          context.font = `${NAME_FONT_WEIGHT} ${size}px ${NAME_FONT_FAMILIES}`;
           const metrics = context.measureText(sanitized);
           return metrics.actualBoundingBoxRight - metrics.actualBoundingBoxLeft || metrics.width;
         };
@@ -122,7 +123,7 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/invitat
 
         const fontSize = Math.min(best, maxFontSize);
 
-        context.font = `400 ${fontSize}px ${NAME_FONT_FAMILIES}`;
+        context.font = `${NAME_FONT_WEIGHT} ${fontSize}px ${NAME_FONT_FAMILIES}`;
         context.textAlign = "center";
         context.textBaseline = "middle";
         context.fillStyle = "#121212";
