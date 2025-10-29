@@ -23,9 +23,16 @@ const IndexClient = () => {
   const landingImageRef = useRef<HTMLImageElement | null>(null);
   const [landingFontScale, setLandingFontScale] = useState<number | null>(null);
 
+  // 캔버스(저장용) 폰트 옵션
   const CANVAS_FONT_OPTIONS = useMemo(() => ({
     to: { weight: 400, manualSize: 1200 },
     from: { weight: 400, manualSize: 1200 },
+  }), []);
+
+  // 메인 화면 오버레이(입력창)에만 적용할 프리뷰 폰트 옵션 (작게 표시)
+  const OVERLAY_FONT_OPTIONS = useMemo(() => ({
+    to: { weight: 400, manualSize: 600 },
+    from: { weight: 400, manualSize: 600 },
   }), []);
 
   const updateLandingFontScale = useCallback(() => {
@@ -60,10 +67,11 @@ const IndexClient = () => {
   const landingOverlayStyle = useMemo<React.CSSProperties | undefined>(() => {
     if (!landingFontScale) return undefined;
     const style: Record<string, string> = {};
-    const toManual = CANVAS_FONT_OPTIONS.to.manualSize ?? 0;
-    const fromManual = CANVAS_FONT_OPTIONS.from.manualSize ?? 0;
-    const toWeight = CANVAS_FONT_OPTIONS.to.weight ?? 400;
-    const fromWeight = CANVAS_FONT_OPTIONS.from.weight ?? 400;
+    // 오버레이는 캔버스와 분리해서 더 작게 보이도록 별도 설정 사용
+    const toManual = OVERLAY_FONT_OPTIONS.to.manualSize ?? 0;
+    const fromManual = OVERLAY_FONT_OPTIONS.from.manualSize ?? 0;
+    const toWeight = OVERLAY_FONT_OPTIONS.to.weight ?? 400;
+    const fromWeight = OVERLAY_FONT_OPTIONS.from.weight ?? 400;
     if (toManual > 0) {
       const size = landingFontScale * toManual;
       style["--landing-to-font-size"] = `${Math.round(size)}px`;
