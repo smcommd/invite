@@ -26,11 +26,11 @@ const IndexPage = () => {
   const CANVAS_FONT_OPTIONS = useMemo(() => ({
     to: {
       weight: 400,
-      manualSize: 600,
+      manualSize: 1200,
     },
     from: {
       weight: 400,
-      manualSize: 600,
+      manualSize: 1200,
     },
   }), []);
 
