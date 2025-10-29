@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link";
 import { useRouter } from "next/router";
 import InvitationCanvas from "./InvitationCanvas";
-import { createPreviewScaleCanvas } from "../../lib/canvas";
+// export는 원본 캔버스 해상도로 진행
 
 const CANVAS_BASE_WIDTH = 1024;
 
@@ -107,7 +107,7 @@ const IndexClient = () => {
       window.alert("초대장 미리보기를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.");
       return;
     }
-    const exportCanvas = createPreviewScaleCanvas(canvas) ?? canvas;
+    const exportCanvas = canvas;
     setIsSaving(true);
     try {
       const link = downloadLinkRef.current;

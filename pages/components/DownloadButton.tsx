@@ -1,5 +1,4 @@
 import React, { MutableRefObject, useRef, useState } from "react";
-import { createPreviewScaleCanvas } from "../../lib/canvas";
 
 interface DownloadButtonProps {
   from: string;
@@ -22,7 +21,7 @@ const DownloadButton = ({ from, to, canvasRef, onReset }: DownloadButtonProps) =
     const sanitizedTo = to.trim();
     const fileName = `invitation-from-${encodeURIComponent(sanitizedFrom || "unknown")}-to-${encodeURIComponent(sanitizedTo || "guest")}.png`;
 
-    const exportCanvas = createPreviewScaleCanvas(canvas) ?? canvas;
+    const exportCanvas = canvas; // 저장은 원본 해상도로
 
     const performDownload = (href: string, revoke?: () => void) => {
       const existingLink = linkRef.current;
