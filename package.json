@@ -7,6 +7,7 @@
     "build": "next build",
     "build:export": "next build && next export",
     "deploy": "next build && next export && rm -rf docs/* && mkdir -p docs && cp -R out/* docs/ && touch docs/.nojekyll",
+    "art:png": "node scripts/generate-artwork.js",
     "start": "next start --hostname 0.0.0.0 --port 3002",
     "lint": "next lint"
   },
@@ -21,6 +22,7 @@
     "@types/react-dom": "^18.2.23",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.3",
+    "sharp": "^0.34.4",
     "typescript": "^5.4.5"
   }
 }
