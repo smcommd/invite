@@ -7,7 +7,7 @@ const INVITATION_HEIGHT = 1098;
 const TO_TEXT_RATIO = 132 / INVITATION_HEIGHT;
 const FROM_TEXT_RATIO = 614 / INVITATION_HEIGHT;
 const TO_TEXT_X_OFFSET = -90; // left by 90px
-const FROM_TEXT_X_OFFSET = 110; // right by 110px
+const FROM_TEXT_X_OFFSET = 125; // right by 125px
 const MAX_TEXT_WIDTH_RATIO = 0.98;
 const TO_TEXT_TARGET_RATIO = 0.92;
 const FROM_TEXT_TARGET_RATIO = 0.92;
@@ -19,6 +19,7 @@ const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",san
 // Allow high-DPI rendering up to the source PNG width for crisp preview
 const MIN_RENDER_WIDTH = 768;
 const MAX_RENDER_WIDTH = 2304; // match regenerated invitation_2.png width
+const EXTRA_RENDER_SCALE = 2; // boost preview render resolution for crisper background/text
 const FONT_LOAD_BASE_SIZE = 36;
 // Treat manualSize as a value defined for this base width and scale with actual canvas width
 const MANUAL_SIZE_BASE_WIDTH = 1024;
@@ -222,7 +223,7 @@ const InvitationCanvas = ({
       const rect = canvas.getBoundingClientRect();
       const devicePixelRatio = typeof window !== "undefined" ? Math.max(1, window.devicePixelRatio || 1) : 1;
       const cssWidth = rect.width || loadedImage.width;
-      const desiredWidth = Math.round(cssWidth * devicePixelRatio);
+      const desiredWidth = Math.round(cssWidth * devicePixelRatio * EXTRA_RENDER_SCALE);
       const targetWidth = Math.max(MIN_RENDER_WIDTH, Math.min(MAX_RENDER_WIDTH, desiredWidth || MIN_RENDER_WIDTH));
       const aspectRatio = loadedImage.naturalHeight && loadedImage.naturalWidth
         ? loadedImage.naturalHeight / loadedImage.naturalWidth
