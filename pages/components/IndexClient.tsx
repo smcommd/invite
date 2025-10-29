@@ -23,16 +23,16 @@ const IndexClient = () => {
   const landingImageRef = useRef<HTMLImageElement | null>(null);
   const [landingFontScale, setLandingFontScale] = useState<number | null>(null);
 
-  // 캔버스(저장용) 폰트 옵션
+  // 캔버스(저장용) 폰트 옵션 + 위치 미세 조정(디자인 px 기준)
   const CANVAS_FONT_OPTIONS = useMemo(() => ({
-    to: { weight: 400, manualSize: 60 },
-    from: { weight: 400, manualSize: 60 },
+    to: { weight: 400, manualSize: 60, xOffset: -110, yOffset: -5 },
+    from: { weight: 400, manualSize: 60, xOffset: 145, yOffset: -5 },
   }), []);
 
   // 메인 화면 오버레이(입력창)에만 적용할 프리뷰 폰트 옵션 (작게 표시)
   const OVERLAY_FONT_OPTIONS = useMemo(() => ({
-    to: { weight: 400, manualSize: 60 },
-    from: { weight: 400, manualSize: 60 },
+    to: { weight: 400, manualSize: 60, xOffset: -110, yOffset: -5 },
+    from: { weight: 400, manualSize: 60, xOffset: 145, yOffset: -5 },
   }), []);
 
   const updateLandingFontScale = useCallback(() => {
@@ -62,6 +62,19 @@ const IndexClient = () => {
     }
     image.addEventListener("load", updateLandingFontScale);
     return () => image.removeEventListener("load", updateLandingFontScale);
+  }, [updateLandingFontScale]);
+
+  // 폰트 로드 완료 즉시 강제 갱신하여 적용 속도 최적화
+  useEffect(() => {
+    let alive = true;
+    if (document?.fonts?.ready) {
+      document.fonts.ready.then(() => {
+        if (!alive) return;
+        // 폰트가 준비되면 레이아웃/스케일 재계산
+        updateLandingFontScale();
+      }).catch(() => {});
+    }
+    return () => { alive = false; };
   }, [updateLandingFontScale]);
 
   const landingOverlayStyle = useMemo<React.CSSProperties | undefined>(() => {

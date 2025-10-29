@@ -30,6 +30,9 @@ interface CanvasFontConfig {
   maxSize?: number;
   targetWidthRatio?: number;
   manualSize?: number;
+  // position fine-tuning in design px (768x1098 base)
+  xOffset?: number;
+  yOffset?: number; // negative moves up
 }
 
 const DEFAULT_FONT_OPTIONS: { to: Required<CanvasFontConfig>; from: Required<CanvasFontConfig> } = {
@@ -39,6 +42,8 @@ const DEFAULT_FONT_OPTIONS: { to: Required<CanvasFontConfig>; from: Required<Can
     maxSize: NAME_FONT_MAX_TO,
     targetWidthRatio: TO_TEXT_TARGET_RATIO,
     manualSize: 0,
+    xOffset: TO_TEXT_X_OFFSET,
+    yOffset: 0,
   },
   from: {
     weight: NAME_FONT_WEIGHT,
@@ -46,6 +51,8 @@ const DEFAULT_FONT_OPTIONS: { to: Required<CanvasFontConfig>; from: Required<Can
     maxSize: NAME_FONT_MAX_FROM,
     targetWidthRatio: FROM_TEXT_TARGET_RATIO,
     manualSize: 0,
+    xOffset: FROM_TEXT_X_OFFSET,
+    yOffset: 0,
   },
 };
 
@@ -155,7 +162,8 @@ const InvitationCanvas = ({
         const sanitized = text.trim();
         if (!sanitized) return;
 
-        const y = Math.round(canvas.height * ratio);
+        const yOffsetPx = (config.yOffset ?? 0) * (canvas.height / INVITATION_HEIGHT);
+        const y = Math.round(canvas.height * ratio + yOffsetPx);
         const maxWidth = canvas.width * MAX_TEXT_WIDTH_RATIO;
         const desiredWidth = Math.min(maxWidth, canvas.width * config.targetWidthRatio);
 
@@ -199,7 +207,8 @@ const InvitationCanvas = ({
         context.textBaseline = "middle";
         context.fillStyle = "#121212";
         // Scale x-offset from base design width to actual canvas pixels (accounts for DPR & extra scale)
-        const scaledOffset = Math.round(xOffset * (canvas.width / INVITATION_WIDTH));
+        const finalOffsetDesign = (config.xOffset ?? xOffset);
+        const scaledOffset = Math.round(finalOffsetDesign * (canvas.width / INVITATION_WIDTH));
         const x = canvas.width / 2 + scaledOffset;
         context.fillText(sanitized, x, y);
       };
@@ -212,18 +221,8 @@ const InvitationCanvas = ({
         (context as any).imageSmoothingQuality = "high";
       }
       context.drawImage(loadedImage, 0, 0, canvas.width, canvas.height);
-      drawName(
-        to,
-        TO_TEXT_RATIO,
-        TO_TEXT_X_OFFSET,
-        resolvedFonts.to,
-      );
-      drawName(
-        from,
-        FROM_TEXT_RATIO,
-        FROM_TEXT_X_OFFSET,
-        resolvedFonts.from,
-      );
+      drawName(to, TO_TEXT_RATIO, 0, resolvedFonts.to);
+      drawName(from, FROM_TEXT_RATIO, 0, resolvedFonts.from);
     };
 
     let animationFrame: number | null = null;

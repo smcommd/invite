@@ -4,6 +4,9 @@ const Document = () => {
   return (
     <Html lang="ko">
       <Head>
+        <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://p.typekit.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://primer.typekit.net" crossOrigin="anonymous" />
         <script
           dangerouslySetInnerHTML={{
             __html:
