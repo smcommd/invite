@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "node scripts/print-network-address.js && next dev --hostname 0.0.0.0 --port 3002",
     "build": "next build",
-    "build:export": "next build && next export",
-    "deploy": "next build && next export && rm -rf docs/* && mkdir -p docs && cp -R out/* docs/ && touch docs/.nojekyll",
+    "build:export": "next build",
+    "deploy": "next build && rm -rf docs/* && mkdir -p docs && cp -R out/* docs/ && touch docs/.nojekyll",
     "art:png": "node scripts/generate-artwork.js",
     "start": "next start --hostname 0.0.0.0 --port 3002",
     "lint": "next lint"
