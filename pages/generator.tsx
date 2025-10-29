@@ -11,11 +11,11 @@ const GeneratorPage = () => {
   const canvasFontOptions = useMemo(() => ({
     to: {
       weight: 400,
-      manualSize: 600,
+      manualSize: 1200,
     },
     from: {
       weight: 400,
-      manualSize: 600,
+      manualSize: 1200,
     },
   }), []);
   const canPreview = useMemo(() => fromName.trim().length > 0 && toName.trim().length > 0, [fromName, toName]);
