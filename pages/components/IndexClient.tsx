@@ -198,7 +198,7 @@ const IndexClient = () => {
   return (
     <main className="landing">
       <div className="landing-wrapper" ref={landingWrapperRef}>
-        <img src={asset("/invitation_2.svg")} alt="졸업전시 초대장 미리보기 이미지" className="landing-image-only" ref={landingImageRef} onLoad={updateLandingFontScale} />
+        <img src={asset("/invitation.png")} alt="졸업전시 초대장 미리보기 이미지" className="landing-image-only" ref={landingImageRef} onLoad={updateLandingFontScale} />
         <div className={`landing-overlay${showResult ? " landing-overlay--readonly" : ""}`} style={!showResult ? landingOverlayStyle : undefined}>
           {!showResult ? (
             <>
@@ -239,4 +239,3 @@ const IndexClient = () => {
 };
 
 export default IndexClient;
-
