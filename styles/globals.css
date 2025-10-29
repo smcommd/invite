@@ -227,11 +227,17 @@ button:disabled {
 .landing-field--to {
   top: 35%;
   left: clamp(24%, 32vw, 40%);
+  --landing-font-size: var(--landing-to-font-size, clamp(18px, 4vw, 28px));
+  --landing-line-height: var(--landing-to-line-height, clamp(26px, 5vw, 34px));
+  --landing-font-weight: var(--landing-to-font-weight, 400);
 }
 
 .landing-text--to {
   top: 35%;
   left: clamp(24%, 32vw, 40%);
+  --landing-font-size: var(--landing-to-font-size, clamp(18px, 4vw, 28px));
+  --landing-line-height: var(--landing-to-line-height, clamp(26px, 5vw, 34px));
+  --landing-font-weight: var(--landing-to-font-weight, 400);
 }
 
 .landing-placeholder {
@@ -252,14 +258,14 @@ button:disabled {
   outline: none;
   background: rgba(255, 255, 255, 0.01);
   color: #121212;
-  font-size: clamp(18px, 4vw, 28px);
-  font-weight: 400 !important;
+  font-size: var(--landing-font-size, clamp(18px, 4vw, 28px));
+  font-weight: var(--landing-font-weight, 400) !important;
   font-style: normal;
   font-family: "rixdongnimgothic-pro", sans-serif;
   text-transform: none;
   padding: 0;
   padding-left: var(--landing-input-offset);
-  line-height: clamp(26px, 5vw, 34px);
+  line-height: var(--landing-line-height, clamp(26px, 5vw, 34px));
   pointer-events: auto;
   text-align: left;
 }
@@ -271,24 +277,30 @@ button:disabled {
 .landing-input::-ms-input-placeholder {
   color: rgba(18, 18, 18, 0.35);
   font-family: "rixdongnimgothic-pro", sans-serif !important;
-  font-weight: 400 !important;
+  font-weight: var(--landing-font-weight, 400) !important;
   font-style: normal;
-  font-size: clamp(18px, 4vw, 28px);
+  font-size: var(--landing-font-size, clamp(18px, 4vw, 28px));
 }
 
 .landing-text {
-  font-size: clamp(18px, 4vw, 28px);
+  font-size: var(--landing-font-size, clamp(18px, 4vw, 28px));
   pointer-events: none;
 }
 
 .landing-field--from {
   top: 46%;
   left: clamp(33%, 40vw, 45%);
+  --landing-font-size: var(--landing-from-font-size, clamp(18px, 4vw, 28px));
+  --landing-line-height: var(--landing-from-line-height, clamp(26px, 5vw, 34px));
+  --landing-font-weight: var(--landing-from-font-weight, 400);
 }
 
 .landing-text--from {
   top: 46%;
   left: clamp(33%, 40vw, 45%);
+  --landing-font-size: var(--landing-from-font-size, clamp(18px, 4vw, 28px));
+  --landing-line-height: var(--landing-from-line-height, clamp(26px, 5vw, 34px));
+  --landing-font-weight: var(--landing-from-font-weight, 400);
 }
 
 @media (min-width: 1024px) {

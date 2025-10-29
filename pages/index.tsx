@@ -1,8 +1,10 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import InvitationCanvas from "./components/InvitationCanvas";
 import { createPreviewScaleCanvas } from "../lib/canvas";
+
+const CANVAS_BASE_WIDTH = 1024;
 
 const IndexPage = () => {
   const { basePath } = useRouter();
@@ -17,6 +19,82 @@ const IndexPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const downloadLinkRef = useRef<HTMLAnchorElement | null>(null);
+  const landingWrapperRef = useRef<HTMLDivElement | null>(null);
+  const landingImageRef = useRef<HTMLImageElement | null>(null);
+  const [landingFontScale, setLandingFontScale] = useState<number | null>(null);
+
+  const CANVAS_FONT_OPTIONS = useMemo(() => ({
+    to: {
+      weight: 500,
+      manualSize: 560,
+    },
+    from: {
+      weight: 400,
+      manualSize: 520,
+    },
+  }), []);
+
+  const updateLandingFontScale = useCallback(() => {
+    const image = landingImageRef.current;
+    const wrapper = landingWrapperRef.current;
+    const width = image?.clientWidth ?? wrapper?.clientWidth;
+    if (!width) return;
+    const scale = width / CANVAS_BASE_WIDTH;
+    setLandingFontScale((prev) => {
+      if (prev === null) return scale;
+      return Math.abs(prev - scale) > 0.005 ? scale : prev;
+    });
+  }, []);
+
+  useEffect(() => {
+    updateLandingFontScale();
+    const wrapper = landingWrapperRef.current;
+    if (!wrapper || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => {
+      updateLandingFontScale();
+    });
+    observer.observe(wrapper);
+    return () => observer.disconnect();
+  }, [updateLandingFontScale]);
+
+  useEffect(() => {
+    const image = landingImageRef.current;
+    if (!image) return;
+    if (image.complete) {
+      updateLandingFontScale();
+      return;
+    }
+    image.addEventListener("load", updateLandingFontScale);
+    return () => {
+      image.removeEventListener("load", updateLandingFontScale);
+    };
+  }, [updateLandingFontScale]);
+
+  const landingOverlayStyle = useMemo<React.CSSProperties | undefined>(() => {
+    if (!landingFontScale) return undefined;
+    const style: Record<string, string> = {};
+    const toManual = CANVAS_FONT_OPTIONS.to.manualSize ?? 0;
+    const fromManual = CANVAS_FONT_OPTIONS.from.manualSize ?? 0;
+    const toWeight = CANVAS_FONT_OPTIONS.to.weight ?? 400;
+    const fromWeight = CANVAS_FONT_OPTIONS.from.weight ?? 400;
+
+    if (toManual > 0) {
+      const size = landingFontScale * toManual;
+      style["--landing-to-font-size"] = `${Math.round(size)}px`;
+      style["--landing-to-line-height"] = `${Math.round(size * 1.08)}px`;
+    }
+
+    if (fromManual > 0) {
+      const size = landingFontScale * fromManual;
+      style["--landing-from-font-size"] = `${Math.round(size)}px`;
+      style["--landing-from-line-height"] = `${Math.round(size * 1.08)}px`;
+    }
+
+    style["--landing-to-font-weight"] = `${toWeight}`;
+    style["--landing-from-font-weight"] = `${fromWeight}`;
+
+    return style as React.CSSProperties;
+  }, [landingFontScale, CANVAS_FONT_OPTIONS]);
 
   const handleButtonClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (!showResult) {
@@ -214,13 +292,18 @@ const IndexPage = () => {
 
   return (
     <main className="landing">
-      <div className="landing-wrapper">
+      <div className="landing-wrapper" ref={landingWrapperRef}>
         <img
           src={asset("/invitation_2.svg")}
           alt="졸업전시 초대장 미리보기 이미지"
           className="landing-image-only"
+          ref={landingImageRef}
+          onLoad={updateLandingFontScale}
         />
-        <div className={`landing-overlay${showResult ? " landing-overlay--readonly" : ""}`}>
+        <div
+          className={`landing-overlay${showResult ? " landing-overlay--readonly" : ""}`}
+          style={!showResult ? landingOverlayStyle : undefined}
+        >
           {!showResult ? (
             <>
               <label className="landing-field landing-field--to" htmlFor="landing-to-input">
