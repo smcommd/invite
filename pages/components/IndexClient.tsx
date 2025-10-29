@@ -222,7 +222,7 @@ const IndexClient = () => {
           ) : (
             <>
               <div className="landing-result-card" aria-live="polite" aria-label="완성된 초대장 미리보기">
-                <InvitationCanvas from={fromName} to={toName} canvasRef={canvasRef} className="landing-result-canvas" imageSrc="/invitation_2.svg" fontOptions={CANVAS_FONT_OPTIONS} />
+                <InvitationCanvas from={fromName} to={toName} canvasRef={canvasRef} className="landing-result-canvas" imageSrc="/invitation_2.png" fontOptions={CANVAS_FONT_OPTIONS} />
               </div>
               <div className="landing-result-actions">
                 <button type="button" className="landing-result-action" onClick={handleSaveClick} disabled={isSaving} aria-label={isSaving ? "초대장 저장 중" : "초대장 저장하기"}>

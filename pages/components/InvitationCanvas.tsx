@@ -202,6 +202,13 @@ const InvitationCanvas = ({
         context.fillText(sanitized, x, y);
       };
 
+      // Improve image quality for scaled raster backgrounds
+      context.imageSmoothingEnabled = true;
+      // @ts-ignore
+      if (typeof (context as any).imageSmoothingQuality !== "undefined") {
+        // @ts-ignore
+        (context as any).imageSmoothingQuality = "high";
+      }
       context.drawImage(loadedImage, 0, 0, canvas.width, canvas.height);
       drawName(
         to,
@@ -224,7 +231,10 @@ const InvitationCanvas = ({
       const devicePixelRatio = typeof window !== "undefined" ? Math.max(1, window.devicePixelRatio || 1) : 1;
       const cssWidth = rect.width || loadedImage.width;
       const desiredWidth = Math.round(cssWidth * devicePixelRatio * EXTRA_RENDER_SCALE);
-      const targetWidth = Math.max(MIN_RENDER_WIDTH, Math.min(MAX_RENDER_WIDTH, desiredWidth || MIN_RENDER_WIDTH));
+      const maxByImage = loadedImage.naturalWidth && Number.isFinite(loadedImage.naturalWidth)
+        ? Math.max(MIN_RENDER_WIDTH, Math.min(MAX_RENDER_WIDTH, loadedImage.naturalWidth))
+        : MAX_RENDER_WIDTH;
+      const targetWidth = Math.max(MIN_RENDER_WIDTH, Math.min(maxByImage, desiredWidth || MIN_RENDER_WIDTH));
       const aspectRatio = loadedImage.naturalHeight && loadedImage.naturalWidth
         ? loadedImage.naturalHeight / loadedImage.naturalWidth
         : INVITATION_HEIGHT / INVITATION_WIDTH;

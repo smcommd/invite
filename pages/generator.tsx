@@ -112,6 +112,7 @@ const GeneratorPage = () => {
                   canvasRef={canvasRef}
                   className="preview-canvas"
                   fontOptions={canvasFontOptions}
+                  imageSrc="/invitation_2.png"
                 />
                 <div className="preview-details">
                   <p>
