@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useCallback, useEffect, useState } from "react";
+import React, { MutableRefObject, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 
 const INVITATION_WIDTH = 1024;
@@ -17,6 +17,32 @@ const NAME_FONT_WEIGHT = 700;
 const NAME_FONT_FAMILIES = `"rixdongnimgothic-pro","tk-rixdongnimgothic-pro",sans-serif`;
 const MIN_RENDER_WIDTH = 1024;
 const MAX_RENDER_WIDTH = 1024;
+const FONT_LOAD_BASE_SIZE = 36;
+
+interface CanvasFontConfig {
+  weight?: number;
+  minSize?: number;
+  maxSize?: number;
+  targetWidthRatio?: number;
+  manualSize?: number;
+}
+
+const DEFAULT_FONT_OPTIONS: { to: Required<CanvasFontConfig>; from: Required<CanvasFontConfig> } = {
+  to: {
+    weight: NAME_FONT_WEIGHT,
+    minSize: NAME_FONT_MIN,
+    maxSize: NAME_FONT_MAX_TO,
+    targetWidthRatio: TO_TEXT_TARGET_RATIO,
+    manualSize: 0,
+  },
+  from: {
+    weight: NAME_FONT_WEIGHT,
+    minSize: NAME_FONT_MIN,
+    maxSize: NAME_FONT_MAX_FROM,
+    targetWidthRatio: FROM_TEXT_TARGET_RATIO,
+    manualSize: 0,
+  },
+};
 
 export interface InvitationCanvasProps {
   from: string;
@@ -24,14 +50,36 @@ export interface InvitationCanvasProps {
   canvasRef: MutableRefObject<HTMLCanvasElement | null>;
   className?: string;
   imageSrc?: string;
+  fontOptions?: {
+    to?: CanvasFontConfig;
+    from?: CanvasFontConfig;
+  };
 }
 
-const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/invitation_2.svg" }: InvitationCanvasProps) => {
+const InvitationCanvas = ({
+  from,
+  to,
+  canvasRef,
+  className,
+  imageSrc = "/invitation_2.svg",
+  fontOptions,
+}: InvitationCanvasProps) => {
   const { basePath } = useRouter();
   const asset = useCallback((path: string) => {
     const normalized = path.startsWith("/") ? path : `/${path}`;
     return `${basePath ?? ""}${normalized}`;
   }, [basePath]);
+
+  const resolvedFonts = useMemo<{ to: Required<CanvasFontConfig>; from: Required<CanvasFontConfig> }>(() => ({
+    to: {
+      ...DEFAULT_FONT_OPTIONS.to,
+      ...fontOptions?.to,
+    },
+    from: {
+      ...DEFAULT_FONT_OPTIONS.from,
+      ...fontOptions?.from,
+    },
+  }), [fontOptions]);
 
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,11 +114,12 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/invitat
       }
       if (document.fonts?.load) {
         try {
-          await Promise.all([
-            document.fonts.load(`${NAME_FONT_WEIGHT} 36px rixdongnimgothic-pro`),
-            document.fonts.load(`${NAME_FONT_WEIGHT} 36px 'rixdongnimgothic-pro'`),
-            document.fonts.load(`${NAME_FONT_WEIGHT} 36px 'tk-rixdongnimgothic-pro'`),
-          ]);
+          const uniqueWeights = Array.from(new Set([resolvedFonts.to.weight, resolvedFonts.from.weight]));
+          await Promise.all(uniqueWeights.flatMap((weight) => ([
+            document.fonts.load(`${weight} ${FONT_LOAD_BASE_SIZE}px rixdongnimgothic-pro`),
+            document.fonts.load(`${weight} ${FONT_LOAD_BASE_SIZE}px 'rixdongnimgothic-pro'`),
+            document.fonts.load(`${weight} ${FONT_LOAD_BASE_SIZE}px 'tk-rixdongnimgothic-pro'`),
+          ])));
         } catch {
           // ignore
         }
@@ -84,7 +133,7 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/invitat
     return () => {
       isMounted = false;
     };
-  }, [asset, imageSrc]);
+  }, [asset, imageSrc, resolvedFonts]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -92,38 +141,47 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/invitat
     if (!canvas || !context || !loadedImage) return;
 
     const drawNames = () => {
-      const drawName = (text: string, ratio: number, xOffset = 0, targetWidthRatio = 0.82, maxFontSize = NAME_FONT_MAX_TO) => {
+      const drawName = (
+        text: string,
+        ratio: number,
+        xOffset: number,
+        config: Required<CanvasFontConfig>,
+      ) => {
         const sanitized = text.trim();
         if (!sanitized) return;
 
         const y = Math.round(canvas.height * ratio);
         const maxWidth = canvas.width * MAX_TEXT_WIDTH_RATIO;
-        const desiredWidth = Math.min(maxWidth, canvas.width * targetWidthRatio);
+        const desiredWidth = Math.min(maxWidth, canvas.width * config.targetWidthRatio);
 
-        const measure = (size: number) => {
-          context.font = `${NAME_FONT_WEIGHT} ${size}px ${NAME_FONT_FAMILIES}`;
+        const measure = (size: number, weight: number) => {
+          context.font = `${weight} ${size}px ${NAME_FONT_FAMILIES}`;
           const metrics = context.measureText(sanitized);
           return metrics.actualBoundingBoxRight - metrics.actualBoundingBoxLeft || metrics.width;
         };
 
-        let low = NAME_FONT_MIN;
-        let high = Math.max(NAME_FONT_MIN, maxFontSize);
-        let best = NAME_FONT_MIN;
+        let fontSize = config.manualSize > 0 ? config.manualSize : config.minSize;
 
-        while (low <= high) {
-          const mid = Math.floor((low + high) / 2);
-          const measured = measure(mid);
-          if (measured <= desiredWidth) {
-            best = mid;
-            low = mid + 2;
-          } else {
-            high = mid - 2;
+        if (config.manualSize <= 0) {
+          let low = config.minSize;
+          let high = Math.max(config.minSize, config.maxSize);
+          let best = config.minSize;
+
+          while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+            const measured = measure(mid, config.weight);
+            if (measured <= desiredWidth) {
+              best = mid;
+              low = mid + 2;
+            } else {
+              high = mid - 2;
+            }
           }
+
+          fontSize = Math.min(best, config.maxSize);
         }
 
-        const fontSize = Math.min(best, maxFontSize);
-
-        context.font = `${NAME_FONT_WEIGHT} ${fontSize}px ${NAME_FONT_FAMILIES}`;
+        context.font = `${config.weight} ${fontSize}px ${NAME_FONT_FAMILIES}`;
         context.textAlign = "center";
         context.textBaseline = "middle";
         context.fillStyle = "#121212";
@@ -132,8 +190,18 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/invitat
       };
 
       context.drawImage(loadedImage, 0, 0, canvas.width, canvas.height);
-      drawName(to, TO_TEXT_RATIO, TO_TEXT_X_OFFSET, TO_TEXT_TARGET_RATIO, NAME_FONT_MAX_TO);
-      drawName(from, FROM_TEXT_RATIO, FROM_TEXT_X_OFFSET, FROM_TEXT_TARGET_RATIO, NAME_FONT_MAX_FROM);
+      drawName(
+        to,
+        TO_TEXT_RATIO,
+        TO_TEXT_X_OFFSET,
+        resolvedFonts.to,
+      );
+      drawName(
+        from,
+        FROM_TEXT_RATIO,
+        FROM_TEXT_X_OFFSET,
+        resolvedFonts.from,
+      );
     };
 
     let animationFrame: number | null = null;
@@ -194,7 +262,7 @@ const InvitationCanvas = ({ from, to, canvasRef, className, imageSrc = "/invitat
       }
       window.removeEventListener("resize", handleWindowResize);
     };
-  }, [canvasRef, from, to, loadedImage]);
+  }, [canvasRef, from, to, loadedImage, resolvedFonts]);
 
   return (
     <div className="invitation-wrapper">
