@@ -124,9 +124,13 @@ const IndexPage = () => {
       const isDesktopSafari = !isIOSDevice && /Safari/i.test(userAgent) && !/Chrome|CriOS|Edg|OPR/i.test(userAgent);
       const isAndroidDevice = /Android/i.test(userAgent);
 
+      const shareText = sanitizedTo
+        ? `${sanitizedTo} 님께 전달하는 초대장입니다.`
+        : "초대장을 함께 확인해 주세요.";
+
       const sharePayload: ShareData & { files?: File[] } = {
         title: sanitizedFrom ? `${sanitizedFrom}의 초대장` : "초대장",
-        text: sanitizedTo ? `${sanitizedTo} 님께 전달하는 초대장입니다.` : undefined,
+        text: shareText,
       };
 
       if (typeof File !== "undefined") {
@@ -164,9 +168,6 @@ const IndexPage = () => {
           await nav.share(data);
           return true;
         } catch (shareError) {
-          if ((shareError as DOMException)?.name === "AbortError") {
-            return true;
-          }
           console.warn("초대장 공유에 실패했습니다.", shareError);
           return false;
         }
@@ -181,7 +182,7 @@ const IndexPage = () => {
         if (!shareHandled) {
           const fallbackShare: ShareData = {
             title: sharePayload.title,
-            text: sharePayload.text,
+            text: sharePayload.text ?? sharePayload.title ?? "초대장을 함께 확인해 주세요.",
           };
           shareHandled = await shareWithData(fallbackShare);
         }
