@@ -198,7 +198,9 @@ const InvitationCanvas = ({
         context.textAlign = "center";
         context.textBaseline = "middle";
         context.fillStyle = "#121212";
-        const x = canvas.width / 2 + xOffset;
+        // Scale x-offset from base design width to actual canvas pixels (accounts for DPR & extra scale)
+        const scaledOffset = Math.round(xOffset * (canvas.width / INVITATION_WIDTH));
+        const x = canvas.width / 2 + scaledOffset;
         context.fillText(sanitized, x, y);
       };
 
