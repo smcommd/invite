@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { buildShareMessage } from "../../lib/shareMessage";
 import InvitationCanvas from "./InvitationCanvas";
 // export는 원본 캔버스 해상도로 진행
 
@@ -179,7 +180,7 @@ const IndexClient = () => {
       const isDesktopSafari = !isIOSDevice && /Safari/i.test(userAgent) && !/Chrome|CriOS|Edg|OPR/i.test(userAgent);
       const isAndroidDevice = /Android/i.test(userAgent);
 
-      const shareText = sanitizedTo ? `${sanitizedTo} 님께 전달하는 초대장입니다.` : "초대장을 함께 확인해 주세요.";
+      const shareText = buildShareMessage(sanitizedTo);
       const sharePayload: ShareData & { files?: File[] } = { title: sanitizedFrom ? `${sanitizedFrom}의 초대장` : "초대장", text: shareText };
       if (typeof File !== "undefined") {
         try { sharePayload.files = [new File([blob], fileName, { type: "image/png" })]; } catch {}
@@ -199,7 +200,7 @@ const IndexClient = () => {
       if (shouldAttemptShare && nav?.share) {
         if (sharePayload.files && canShareFiles) shareHandled = await shareWithData(sharePayload);
         if (!shareHandled) {
-          const fallbackShare: ShareData = { title: sharePayload.title, text: sharePayload.text ?? sharePayload.title ?? "초대장을 함께 확인해 주세요." };
+          const fallbackShare: ShareData = { title: sharePayload.title, text: sharePayload.text ?? buildShareMessage() };
           shareHandled = await shareWithData(fallbackShare);
         }
       }

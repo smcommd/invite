@@ -1,4 +1,5 @@
 import React, { MutableRefObject, useRef, useState } from "react";
+import { buildShareMessage } from "../../lib/shareMessage";
 
 interface DownloadButtonProps {
   from: string;
@@ -83,9 +84,7 @@ const DownloadButton = ({ from, to, canvasRef, onReset }: DownloadButtonProps) =
       const isIOSDevice = /iP(ad|hone|od)/i.test(userAgent);
       const isAndroidDevice = /Android/i.test(userAgent);
 
-      const shareText = sanitizedTo
-        ? `${sanitizedTo} 님께 전달하는 초대장입니다.`
-        : "초대장을 함께 확인해 주세요.";
+      const shareText = buildShareMessage(sanitizedTo);
 
       const sharePayload: ShareData & { files?: File[] } = {
         title: sanitizedFrom ? `${sanitizedFrom}의 초대장` : "초대장",
@@ -132,7 +131,7 @@ const DownloadButton = ({ from, to, canvasRef, onReset }: DownloadButtonProps) =
         if (!shareHandled) {
           const fallbackShare: ShareData = {
             title: sharePayload.title,
-            text: sharePayload.text ?? sharePayload.title ?? "초대장을 함께 확인해 주세요.",
+            text: sharePayload.text ?? buildShareMessage(),
           };
           shareHandled = await shareWithData(fallbackShare);
         }
